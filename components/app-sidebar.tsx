@@ -17,7 +17,6 @@ import * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +24,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 
 // This is sample data.
 const data = {
@@ -156,8 +156,9 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+      <SidebarHeader className="flex items-center justify-between">
+        {/* <TeamSwitcher teams={data.teams} /> */}
+        <Image src={"/logo.png"} width={150} height={100} alt="Logo" />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
