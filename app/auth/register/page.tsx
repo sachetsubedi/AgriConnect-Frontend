@@ -1,5 +1,6 @@
 "use client";
 
+import CustomRadioButton from "@/components/CustomRadioButtons";
 import Logo from "@/components/Logo";
 import { PhoneInput } from "@/components/phone-input";
 import Required from "@/components/required";
@@ -13,8 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import LoadingButton from "@/components/ui/loadingButton";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Icon } from "@iconify/react/dist/iconify.js";
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -26,8 +30,8 @@ const registerFormSchema = z.object({
     .string()
     .min(6, "Confirm Password must be at least 8 characters long"),
   phone: z.string().min(10, "Phone number must be at least 10 digits long"),
-  country: z.string().min(1, "Country is required"),
-  userType: z.string().min(1, "User type is required"),
+  address: z.string().min(1, "Address is required"),
+  userType: z.string().min(1, "Please select a user type"),
 });
 
 const Register = () => {
@@ -38,13 +42,17 @@ const Register = () => {
       password: "",
       confirmPassword: "",
       phone: "",
-      country: "",
+      address: "",
       userType: "",
     },
     resolver: zodResolver(registerFormSchema),
   });
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
   return (
-    <div className="flex  items-center flex-col h-screen px-52">
+    <div className="flex  items-center flex-col h-screen px-52 lg:px-96 ">
       <div className="flex justify-start w-full mb-10">
         <Logo />
       </div>
@@ -63,7 +71,10 @@ const Register = () => {
           </div>
           <div>
             <Form {...form}>
-              <form className="mt-10 flex flex-col gap-5">
+              <form
+                className="mt-10 flex flex-col gap-5"
+                onSubmit={form.handleSubmit((data) => {})}
+              >
                 <div className="flex justify-between gap-5">
                   {/* ================================================================================================ */}
                   <FormField
@@ -105,23 +116,147 @@ const Register = () => {
 
                   {/* ================================================================================================ */}
                 </div>
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => {
-                    return (
-                      <FormItem className="w-full">
-                        <FormLabel>
-                          Phone <Required />{" "}
-                        </FormLabel>
-                        <FormControl>
-                          <PhoneInput {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
+
+                <div className="flex justify-between gap-5">
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="w-full">
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                placeholder="Password"
+                                type={isPasswordVisible ? "text" : "password"}
+                                {...field}
+                              />
+                              <Icon
+                                icon={
+                                  !isPasswordVisible
+                                    ? "solar:eye-closed-bold"
+                                    : "solar:eye-bold"
+                                }
+                                role="button"
+                                onClick={() => {
+                                  setIsPasswordVisible(!isPasswordVisible);
+                                }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 z-20"
+                                width="24"
+                                height="24"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="w-full">
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                placeholder="Confirm Password"
+                                type={
+                                  isConfirmPasswordVisible ? "text" : "password"
+                                }
+                                {...field}
+                              />
+                              <Icon
+                                icon={
+                                  !isConfirmPasswordVisible
+                                    ? "solar:eye-closed-bold"
+                                    : "solar:eye-bold"
+                                }
+                                role="button"
+                                onClick={() => {
+                                  setIsConfirmPasswordVisible(
+                                    !isConfirmPasswordVisible
+                                  );
+                                }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500 z-20"
+                                width="24"
+                                height="24"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
+
+                <div className="flex justify-between gap-5">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="w-full">
+                          <FormLabel>
+                            Phone <Required />{" "}
+                          </FormLabel>
+                          <FormControl>
+                            <PhoneInput {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="w-full">
+                          <FormLabel>
+                            Address <Required />{" "}
+                          </FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Kathmandu, Nepal" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <CustomRadioButton
+                    buttons={[
+                      {
+                        label: "Buyer",
+                        icon: "mynaui:cart-solid",
+                        value: "buyer",
+                      },
+                      {
+                        label: "Seller",
+                        icon: "material-symbols:sell",
+                        value: "seller",
+                      },
+                    ]}
+                    onChange={(value) => {
+                      form.setValue("userType", value);
+                    }}
+                  ></CustomRadioButton>
+                  <FormLabel className="text-red-500">
+                    {form.formState.errors.userType?.message}
+                  </FormLabel>
+                </div>
+
+                <LoadingButton>Register</LoadingButton>
               </form>
             </Form>
           </div>
