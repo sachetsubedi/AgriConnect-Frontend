@@ -24,6 +24,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useSession } from "@/hooks/useSession";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
 // This is sample data.
@@ -154,6 +156,25 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [user, setUser] = React.useState({ name: "", email: "", avatar: "" });
+
+  const query = useQuery({
+    queryFn: useSession,
+    queryKey: ["session"],
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
+  React.useEffect(() => {
+    if (query.isSuccess) {
+      setUser({
+        name: query.data.data.name,
+        email: query.data.data.email,
+        avatar: "/avatars/shadcn.jpg", // Assuming a static avatar for now
+      });
+    }
+  }, [query.data]);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex items-center justify-between">
@@ -165,7 +186,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
