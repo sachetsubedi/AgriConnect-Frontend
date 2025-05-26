@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import Logo from "@/components/Logo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -10,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import LoadingButton from "@/components/ui/loadingButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
@@ -37,14 +38,17 @@ const LoginPage = () => {
     <div className="flex justify-between">
       {/* Login form */}
       <div className="w-[30%] flex flex-col items-center  h-screen">
-        <img src="/logo.png" alt="logo" className="mt-10" />
+        <Logo />
         <Card className="w-[90%] mt-10 bg-blend-multiply bg-muted ">
           <CardHeader>
             <CardTitle className="text-2xl">User Login</CardTitle>
           </CardHeader>
           <CardContent className=" w-full">
             <Form {...form}>
-              <form className="flex flex-col gap-5">
+              <form
+                className="flex flex-col gap-5"
+                onSubmit={form.handleSubmit((data) => {})}
+              >
                 {/* ================================================================================================ */}
                 <FormField
                   control={form.control}
@@ -103,7 +107,7 @@ const LoginPage = () => {
                 <div>
                   Don&apos;t have an account?{" "}
                   <Link
-                    href={"/#"}
+                    href={"/auth/register"}
                     className="underline font-semibold text-primary"
                   >
                     {" "}
@@ -112,7 +116,7 @@ const LoginPage = () => {
                 </div>
 
                 {/* ================================================================================================ */}
-                <Button type="submit"> Login</Button>
+                <LoadingButton type="submit">Login</LoadingButton>
               </form>
             </Form>
           </CardContent>
