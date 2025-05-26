@@ -15,11 +15,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import LoadingButton from "@/components/ui/loadingButton";
+import { API_RegisterUser } from "@/lib/Api/api";
+import { mapFieldsOnError } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const registerFormSchema = z.object({
@@ -33,6 +38,8 @@ const registerFormSchema = z.object({
   address: z.string().min(1, "Address is required"),
   userType: z.string().min(1, "Please select a user type"),
 });
+
+export type T_UserRegister = z.infer<typeof registerFormSchema>;
 
 const Register = () => {
   const form = useForm({
@@ -51,6 +58,24 @@ const Register = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
+
+  const mutation = useMutation({
+    mutationFn: API_RegisterUser,
+    onSuccess: (data) => {
+      return toast.success(data.message);
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      mapFieldsOnError(error, form.setError);
+      return toast.error(
+        error.response?.data?.message || "Registration failed"
+      );
+    },
+  });
+
+  const onSubmit = (data: T_UserRegister) => {
+    mutation.mutate(data);
+  };
+
   return (
     <div className="flex  items-center flex-col h-screen px-52 lg:px-96 ">
       <div className="flex justify-start w-full mb-10">
@@ -73,7 +98,7 @@ const Register = () => {
             <Form {...form}>
               <form
                 className="mt-10 flex flex-col gap-5"
-                onSubmit={form.handleSubmit((data) => {})}
+                onSubmit={form.handleSubmit(onSubmit)}
               >
                 <div className="flex justify-between gap-5">
                   {/* ================================================================================================ */}
