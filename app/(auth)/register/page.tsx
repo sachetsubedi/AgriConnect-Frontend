@@ -22,22 +22,33 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const registerFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 8 characters long"),
-  confirmPassword: z
-    .string()
-    .min(6, "Confirm Password must be at least 8 characters long"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits long"),
-  address: z.string().min(1, "Address is required"),
-  userType: z.string().min(1, "Please select a user type"),
-});
+const registerFormSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 8 characters long"),
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm Password must be at least 8 characters long"),
+    phone: z.string().min(10, "Phone number must be at least 10 digits long"),
+    address: z.string().min(1, "Address is required"),
+    userType: z.string().min(1, "Please select a user type"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password !== data.confirmPassword) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
 
 export type T_UserRegister = z.infer<typeof registerFormSchema>;
 
@@ -59,10 +70,14 @@ const Register = () => {
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false);
 
+  const router = useRouter();
+
   const mutation = useMutation({
     mutationFn: API_RegisterUser,
     onSuccess: (data) => {
-      return toast.success(data.message);
+      form.reset();
+      toast.success(data.message);
+      return router.push("/login");
     },
     onError: (error: AxiosError<{ message: string }>) => {
       mapFieldsOnError(error, form.setError);
@@ -90,7 +105,7 @@ const Register = () => {
         <CardContent className="flex flex-col">
           <div>
             Already have an account?{" "}
-            <Link href={"/auth/login"} className="underline text-primary">
+            <Link href={"/login"} className="underline text-primary">
               Login{" "}
             </Link>
           </div>
