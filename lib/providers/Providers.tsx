@@ -6,7 +6,7 @@ const client = new QueryClient();
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <QueryClientProvider client={client}>
-      <Toaster richColors />
+      <Toaster richColors position="top-right" />
       {children}
     </QueryClientProvider>
   );

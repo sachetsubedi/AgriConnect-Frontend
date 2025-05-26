@@ -273,6 +273,7 @@ const Register = () => {
                       },
                     ]}
                     onChange={(value) => {
+                      form.clearErrors("userType");
                       form.setValue("userType", value);
                     }}
                   ></CustomRadioButton>
@@ -281,7 +282,9 @@ const Register = () => {
                   </FormLabel>
                 </div>
 
-                <LoadingButton>Register</LoadingButton>
+                <LoadingButton loading={mutation.isPending}>
+                  Register
+                </LoadingButton>
               </form>
             </Form>
           </div>
