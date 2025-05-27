@@ -8,6 +8,7 @@ export type T_User = {
   email: string;
   phone: string;
   address: string;
+  avatar: string;
   userType: string;
   createdAt: string;
   updatedAt: string;
@@ -25,5 +26,28 @@ export const API_LoginUser = async (data: {
 }) => {
   const response: AxiosResponse<{ message: string; data: T_User }> =
     await axiosInstance.post("/auth/login", data);
+  return response.data;
+};
+
+export type T_ListingAttachment = {
+  id: string;
+  listingId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type T_Product = {
+  title: string;
+  description: string;
+  pricePerUnit: number;
+  quantity: number;
+  unit: string;
+  sellerId: string;
+  seller: T_User;
+};
+
+export const API_GetAllProducts = async () => {
+  const response: AxiosResponse<{ message: string; data: any[] }> =
+    await axiosInstance.get("/listing");
   return response.data;
 };

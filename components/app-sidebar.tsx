@@ -3,14 +3,14 @@
 import {
   AudioWaveform,
   BookOpen,
-  Bot,
   Command,
   Frame,
   GalleryVerticalEnd,
+  LayoutDashboard,
   Map,
   PieChart,
   Settings2,
-  SquareTerminal,
+  ShoppingCart,
 } from "lucide-react";
 import * as React from "react";
 
@@ -28,134 +28,108 @@ import { useSession } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+export function AppSidebar({
+  userId,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { userId: string }) {
+  const data = {
+    user: {
+      name: "shadcn",
+      email: "m@example.com",
+      avatar: "/avatars/shadcn.jpg",
     },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings2,
+    teams: [
+      {
+        name: "Acme Inc",
+        logo: GalleryVerticalEnd,
+        plan: "Enterprise",
+      },
+      {
+        name: "Acme Corp.",
+        logo: AudioWaveform,
+        plan: "Startup",
+      },
+      {
+        name: "Evil Corp.",
+        logo: Command,
+        plan: "Free",
+      },
+    ],
+    navMain: [
+      {
+        title: "Dashboard",
+        url: `/p/${userId}/dashboard`,
+        icon: LayoutDashboard,
+        isActive: true,
+      },
+      {
+        title: "Products",
+        url: `/p/${userId}/products`,
+        icon: ShoppingCart,
+      },
+      {
+        title: "Documentation",
+        url: "#",
+        icon: BookOpen,
+        items: [
+          {
+            title: "Introduction",
+            url: "#",
+          },
+          {
+            title: "Get Started",
+            url: "#",
+          },
+          {
+            title: "Tutorials",
+            url: "#",
+          },
+          {
+            title: "Changelog",
+            url: "#",
+          },
+        ],
+      },
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: Settings2,
 
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-};
+        items: [
+          {
+            title: "General",
+            url: "#",
+          },
+          {
+            title: "Team",
+            url: "#",
+          },
+          {
+            title: "Billing",
+            url: "#",
+          },
+        ],
+      },
+    ],
+    projects: [
+      {
+        name: "Design Engineering",
+        url: "#",
+        icon: Frame,
+      },
+      {
+        name: "Sales & Marketing",
+        url: "#",
+        icon: PieChart,
+      },
+      {
+        name: "Travel",
+        url: "#",
+        icon: Map,
+      },
+    ],
+  };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [user, setUser] = React.useState({ name: "", email: "", avatar: "" });
 
   const query = useQuery({
@@ -170,7 +144,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       setUser({
         name: query.data.data.name,
         email: query.data.data.email,
-        avatar: "/avatars/shadcn.jpg", // Assuming a static avatar for now
+        avatar: query.data.data.avatar, // Assuming a static avatar for now
       });
     }
   }, [query.data]);
