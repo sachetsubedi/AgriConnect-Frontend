@@ -22,3 +22,7 @@ export const mapFieldsOnError = (err: AxiosError<any>, setError: any) => {
 export const getPath = (userId: string, path: string) => {
   return `/p/${userId}/${path}`;
 };
+
+export function areAllFilesImages(fileList: FileList) {
+  return Array.from(fileList).every((file) => file.type.startsWith("image/"));
+}

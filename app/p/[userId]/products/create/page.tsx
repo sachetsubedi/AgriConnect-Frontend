@@ -32,7 +32,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { API_CreateProduct } from "@/lib/Api/api";
 import { UNITS } from "@/lib/data";
-import { cn, getPath, mapFieldsOnError } from "@/lib/utils";
+import { areAllFilesImages, cn, getPath, mapFieldsOnError } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -74,6 +74,20 @@ const createProductSchema = z
       c.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Please select at least one photo",
+        path: ["files"],
+      });
+    } else if (v.files.length > 5) {
+      c.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "You can upload a maximum of 5 photos",
+        path: ["files"],
+      });
+    }
+
+    if (!areAllFilesImages(v.files)) {
+      c.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "All files must be images",
         path: ["files"],
       });
     }
@@ -257,6 +271,7 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                         <Input
                           type="file"
                           multiple
+                          accept="image/*"
                           onChange={(e) => {
                             form.setValue("files", e.target.files);
                             form.clearErrors("files");

@@ -49,7 +49,8 @@ const LoginPage = () => {
     mutationFn: API_LoginUser,
     onSuccess: (data) => {
       toast.success("Login successful!");
-      router.push(`/p/${data.data.id}/dashboard`);
+      localStorage.setItem("user", data.data.id);
+      return router.push(`/p/${data.data.id}/dashboard`);
     },
     onError: (error: AxiosError<{ message: string }>) => {
       mapFieldsOnError(error, form.setError);
