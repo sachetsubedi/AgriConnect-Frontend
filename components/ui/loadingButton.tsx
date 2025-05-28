@@ -5,16 +5,23 @@ import { Button } from "../ui/button";
 interface LoadingButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode | string;
   loading?: boolean;
+  variant?: "default" | "secondary" | "destructive" | "outline" | "ghost";
 }
 
 const LoadingButton: FC<LoadingButtonProps> = ({
   children,
   loading,
+  variant = "default",
   ...props
 }) => {
   return (
     <div className="w-full">
-      <Button className={`flex gap-2 w-full`} {...props} disabled={loading}>
+      <Button
+        className={`flex gap-2 w-full`}
+        {...props}
+        disabled={loading}
+        variant={variant}
+      >
         {children}
         <Icon
           icon={"svg-spinners:90-ring"}

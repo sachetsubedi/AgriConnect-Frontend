@@ -7,6 +7,9 @@ import { API_GetAllProducts } from "@/lib/Api/api";
 import { getPath } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { FC, use } from "react";
+export interface I_Params {
+  userId: string;
+}
 
 const Page: FC<{
   params: Promise<{ userId: string }>;

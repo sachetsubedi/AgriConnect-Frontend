@@ -53,3 +53,9 @@ export const API_GetAllProducts = async () => {
     await axiosInstance.get("/listing");
   return response.data;
 };
+
+export const API_CreateProduct = async (data: FormData) => {
+  const response: AxiosResponse<{ message: string; data: T_Product }> =
+    await axiosInstance.post("/listing", data);
+  return response.data;
+};
