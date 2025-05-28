@@ -1,6 +1,8 @@
 "use client";
 import CustomBreadcrumbs from "@/components/CustomBreadcrumbs";
+import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
+import ProductCard from "@/components/products/ProductCard";
 import { API_GetAllProducts } from "@/lib/Api/api";
 import { useQuery } from "@tanstack/react-query";
 import { FC, use } from "react";
@@ -14,6 +16,9 @@ const Page: FC<{
   });
 
   const { userId } = use(params);
+
+  if (productsQuery.isLoading) return <Loader />;
+
   return (
     <div>
       <PageHeader title="Products" />
@@ -23,8 +28,13 @@ const Page: FC<{
           { title: "List" },
         ]}
       />
-
-      <div></div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {productsQuery.data?.data.map((product, index) => (
+          <div key={index} className="mb-4">
+            <ProductCard product={product} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

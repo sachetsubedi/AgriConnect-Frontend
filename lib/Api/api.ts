@@ -31,6 +31,7 @@ export const API_LoginUser = async (data: {
 
 export type T_ListingAttachment = {
   id: string;
+  attachment: string;
   listingId: string;
   createdAt: string;
   updatedAt: string;
@@ -44,10 +45,11 @@ export type T_Product = {
   unit: string;
   sellerId: string;
   seller: T_User;
+  listingAttachments: T_ListingAttachment[];
 };
 
 export const API_GetAllProducts = async () => {
-  const response: AxiosResponse<{ message: string; data: any[] }> =
+  const response: AxiosResponse<{ message: string; data: T_Product[] }> =
     await axiosInstance.get("/listing");
   return response.data;
 };
