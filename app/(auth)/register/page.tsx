@@ -92,7 +92,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex  items-center flex-col h-screen px-52 lg:px-96 ">
+    <div className="flex  items-center flex-col h-screen px-10 md:px-40 xl:px-96 ">
       <div className="flex justify-start w-full mb-10">
         <Logo />
       </div>

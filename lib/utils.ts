@@ -18,3 +18,7 @@ export const mapFieldsOnError = (err: AxiosError<any>, setError: any) => {
     });
   });
 };
+
+export const getPath = (userId: string, path: string) => {
+  return `/p/${userId}/${path}`;
+};

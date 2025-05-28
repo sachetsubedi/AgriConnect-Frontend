@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/products/ProductCard";
 import { API_GetAllProducts } from "@/lib/Api/api";
+import { getPath } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { FC, use } from "react";
 
@@ -21,7 +22,11 @@ const Page: FC<{
 
   return (
     <div>
-      <PageHeader title="Products" />
+      <PageHeader
+        title="Products"
+        createPage={getPath(userId, "products/create")}
+        createPageTitle="Add Product"
+      />
       <CustomBreadcrumbs
         items={[
           { title: "Products", link: `/p/${userId}/products` },
