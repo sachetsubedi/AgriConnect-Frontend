@@ -388,6 +388,10 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                   variant={"outline"}
                   onClick={() => {
                     form.reset();
+                    form.setValue("harvested", true);
+                    form.setValue("willHarvestAt", new Date());
+                    form.clearErrors();
+                    form.setValue("files", null);
                   }}
                 >
                   Clear
