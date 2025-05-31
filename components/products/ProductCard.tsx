@@ -1,20 +1,17 @@
 import { T_Product } from "@/lib/Api/api";
 import { BadgeDollarSign } from "lucide-react";
-import Image from "next/image";
 import { FC } from "react";
 import { Card, CardContent } from "../ui/card";
 
 const ProductCard: FC<{ product: T_Product }> = ({ product }) => {
   return (
     <Card className="w-64  shadow-none border-none hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer">
-      <CardContent className="px-0 py-5 ">
+      <CardContent className="px-0 my-5 ">
         <div className="relative">
-          <Image
-            height={200}
-            width={256}
+          <img
             src={product.listingAttachments[0].attachment}
             alt="product"
-            className="rounded-md"
+            className="rounded-md h-32 w-full"
           />
         </div>
         <div className="flex justify-between">

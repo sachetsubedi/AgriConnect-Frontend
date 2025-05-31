@@ -37,7 +37,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, CircleX, Eraser, Send } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, use } from "react";
 import { useForm } from "react-hook-form";
@@ -383,9 +384,14 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
               />
 
               <div className="flex justify-end gap-5">
+                <Link href={getPath(userId, "products")}>
+                  <Button variant={"outline"}>
+                    <CircleX /> Cancel
+                  </Button>
+                </Link>
                 <Button
                   type="button"
-                  variant={"outline"}
+                  variant={"destructive"}
                   onClick={() => {
                     form.reset();
                     form.setValue("harvested", true);
@@ -394,6 +400,7 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                     form.setValue("files", null);
                   }}
                 >
+                  <Eraser />
                   Clear
                 </Button>
                 <div>
@@ -402,6 +409,7 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                     variant={"default"}
                     loading={mutatation.isPending}
                   >
+                    <Send />
                     Submit
                   </LoadingButton>
                 </div>
