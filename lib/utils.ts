@@ -19,10 +19,16 @@ export const mapFieldsOnError = (err: AxiosError<any>, setError: any) => {
   });
 };
 
-export const getPath = (userId: string, path: string) => {
+export const getPath = (userId: string, path: string | string[]) => {
+  if (Array.isArray(path)) {
+    path = path.join("/");
+  }
   return `/p/${userId}/${path}`;
 };
 
 export function areAllFilesImages(fileList: FileList) {
+  if (!fileList || fileList.length === 0) {
+    return false;
+  }
   return Array.from(fileList).every((file) => file.type.startsWith("image/"));
 }
