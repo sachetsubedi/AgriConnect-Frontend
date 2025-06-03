@@ -38,6 +38,7 @@ export type T_ListingAttachment = {
 };
 
 export type T_Product = {
+  id: string;
   title: string;
   description: string;
   pricePerUnit: number;
