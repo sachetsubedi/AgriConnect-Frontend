@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
+import { format } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -32,3 +33,7 @@ export function areAllFilesImages(fileList: FileList) {
   }
   return Array.from(fileList).every((file) => file.type.startsWith("image/"));
 }
+
+export const formatDate = (date: string | Date) => {
+  return format(date, "dd MMM, yyyy");
+};
