@@ -100,7 +100,14 @@ const EditProduct: FC<{
   });
 
   useEffect(() => {
-    if (query.isSuccess) {
+    if (query.isSuccess && query.data) {
+      console.log("API data:", query.data);
+
+      // Force update for unit specifically
+      setTimeout(() => {
+        form.setValue("unit", query.data.unit);
+      }, 0);
+
       form.reset({
         title: query.data.title,
         description: query.data.description,
@@ -113,7 +120,7 @@ const EditProduct: FC<{
           : new Date(),
       });
     }
-  }, [query.data]);
+  }, [query.data, query.isSuccess, form]);
 
   const router = useRouter();
 
@@ -220,14 +227,11 @@ const EditProduct: FC<{
                       </FormLabel>
                       <FormControl>
                         <Select
-                          value={field.value}
-                          onValueChange={(value) => {
-                            form.setValue("unit", value);
-                            form.clearErrors("unit");
-                          }}
+                          value={field.value || ""}
+                          onValueChange={field.onChange}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a fruit" />
+                            <SelectValue placeholder="Select a unit" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>

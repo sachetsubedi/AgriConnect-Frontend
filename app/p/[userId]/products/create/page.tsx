@@ -221,7 +221,7 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                           }}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a fruit" />
+                            <SelectValue placeholder="Select a unit" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
