@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/products/ProductCard";
 import { Input } from "@/components/ui/input";
+import { useSession } from "@/hooks/useSession";
 import { API_GetAllProducts } from "@/lib/Api/api";
 import { getPath } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -27,15 +28,21 @@ const Page: FC<{
     queryFn: () => API_GetAllProducts(searchQuery),
   });
 
+  const session = useSession();
+
   const { userId } = use(params);
 
-  if (productsQuery.isLoading) return <Loader />;
+  if (productsQuery.isLoading || session.isLoading) return <Loader />;
 
   return (
     <div>
       <PageHeader
         title="Products"
-        createPage={getPath(userId, "products/create")}
+        createPage={
+          session.data?.userType === "seller"
+            ? getPath(userId, "products/create")
+            : undefined
+        }
         createPageTitle="Add Product"
       />
       <CustomBreadcrumbs

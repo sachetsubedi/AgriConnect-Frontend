@@ -12,12 +12,14 @@ const LoadingButton: FC<LoadingButtonProps> = ({
   children,
   loading,
   variant = "default",
+  type = "submit",
   ...props
 }) => {
   return (
     <div className="">
       <Button
         className={`flex gap-2 w-full`}
+        type={type}
         {...props}
         disabled={loading}
         variant={variant}

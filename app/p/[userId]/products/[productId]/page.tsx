@@ -18,14 +18,18 @@ import {
   DialogFooter,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import LoadingButton from "@/components/ui/loadingButton";
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/hooks/useSession";
 import { API_DeleteProduct, API_GetProduct } from "@/lib/Api/api";
 import { formatDate, getPath } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import {
+  CircleX,
   PackageCheck,
   PencilRuler,
   ShoppingCart,
@@ -36,8 +40,24 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FC, use, useState } from "react";
+import { FC, use, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const orderSchema = z.object({
+  quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
+  price: z.coerce.number().min(0, "Price must be at least 0").optional(),
+});
+// .superRefine((data, ctx) => {
+//   if (Number(data.quantity) < 1) {
+//     ctx.addIssue({
+//       code: z.ZodIssueCode.custom,
+//       message: "Quantity must be at least 1",
+//       path: ["quantity"],
+//     });
+//   }
+// });
 
 const ProductView: FC<{
   params: Promise<{ userId: string; productId: string }>;
@@ -67,6 +87,23 @@ const ProductView: FC<{
       toast.error(error?.response?.data?.message || "Failed to delete product");
     },
   });
+
+  const orderForm = useForm({
+    defaultValues: {
+      quantity: 1,
+      price: query.data?.pricePerUnit || 0,
+    },
+    resolver: zodResolver(orderSchema),
+  });
+
+  useEffect(() => {
+    if (query.isSuccess) {
+      orderForm.reset({
+        quantity: 1,
+        price: query.data.pricePerUnit,
+      });
+    }
+  }, [query.data]);
 
   const session = useSession();
 
@@ -220,6 +257,67 @@ const ProductView: FC<{
             >
               <Trash />
               Delete
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open>
+        <DialogContent>
+          <DialogTitle className="flex justify-center items-center gap-3 text-center">
+            {/* <ShoppingCartIcon className="text-primary" />  */}
+            Place Order
+          </DialogTitle>
+          <div className="font-bold text-muted-foreground flex gap-2 items-end">
+            <ShoppingCart /> Order Details
+          </div>
+
+          <div className="flex justify-between items-end gap-3">
+            <div className="w-full">
+              <Label>Quantity</Label>
+              <Input
+                {...orderForm.register("quantity")}
+                type="number"
+                className="w-full"
+              />
+              <Label className="text-destructive">
+                {orderForm.formState.errors.quantity?.message}{" "}
+              </Label>
+            </div>
+            <div>
+              <X size={20} />
+              {orderForm.formState.errors.quantity && <Label> &nbsp; </Label>}
+            </div>
+            <div className="w-full">
+              <Label>Price</Label>
+              <Input
+                disabled
+                {...orderForm.register("price")}
+                className="w-full"
+              />
+              {orderForm.formState.errors.quantity && <Label> &nbsp; </Label>}
+            </div>
+          </div>
+          <div className="font-bold">
+            <span className="text-muted-foreground">Total:</span> Rs{" "}
+            {orderForm.watch("quantity")
+              ? orderForm.watch("quantity") * Number(query.data?.pricePerUnit)
+              : "0"}{" "}
+          </div>
+
+          <DialogFooter>
+            <Button variant={"outline"} type="button">
+              <CircleX /> Cancel
+            </Button>
+            <LoadingButton
+              type="submit"
+              onClick={() => {
+                orderForm.handleSubmit(() => {
+                  console.log("submitted");
+                })();
+              }}
+            >
+              <ShoppingCart /> Place Order
             </LoadingButton>
           </DialogFooter>
         </DialogContent>
