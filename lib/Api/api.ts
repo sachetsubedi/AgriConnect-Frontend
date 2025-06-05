@@ -46,6 +46,9 @@ export type T_Product = {
   unit: string;
   sellerId: string;
   seller: T_User;
+  harvested: boolean;
+  createdAt: string;
+  willHarvestAt: string;
   listingAttachments: T_ListingAttachment[];
 };
 
@@ -58,5 +61,11 @@ export const API_GetAllProducts = async () => {
 export const API_CreateProduct = async (data: FormData) => {
   const response: AxiosResponse<{ message: string; data: T_Product }> =
     await axiosInstance.post("/listing", data);
+  return response.data;
+};
+
+export const API_GetProduct = async (productId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Product }> =
+    await axiosInstance.get(`/listing/${productId}`);
   return response.data;
 };
