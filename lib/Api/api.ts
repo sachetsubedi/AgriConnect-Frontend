@@ -70,7 +70,11 @@ export const API_GetProduct = async (productId: string) => {
   return response.data;
 };
 
-export const API_UpdateProduct = async (productId: string, data: any) => {
+export const API_UpdateProduct = async (args: {
+  productId: string;
+  data: FormData;
+}) => {
+  const { productId, data } = args;
   const response: AxiosResponse<{ message: string; data: T_Product }> =
     await axiosInstance.put(`/listing/${productId}`, data);
   return response.data;

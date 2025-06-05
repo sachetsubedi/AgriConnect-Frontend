@@ -1,5 +1,6 @@
 "use client";
 import CustomBreadcrumbs from "@/components/CustomBreadcrumbs";
+import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
 import Required from "@/components/required";
 import { Button } from "@/components/ui/button";
@@ -30,22 +31,21 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { API_CreateProduct } from "@/lib/Api/api";
+import { API_GetProduct, API_UpdateProduct } from "@/lib/Api/api";
 import { UNITS } from "@/lib/data";
-import { areAllFilesImages, cn, getPath, mapFieldsOnError } from "@/lib/utils";
+import { cn, getPath, mapFieldsOnError } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { format } from "date-fns";
-import { CalendarIcon, CircleX, Eraser, Send } from "lucide-react";
+import { CalendarIcon, CircleX, Send } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FC, use } from "react";
+import { FC, use, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { I_Params } from "../page";
-const createProductSchema = z
+const editProductSchema = z
   .object({
     title: z
       .string()
@@ -60,7 +60,6 @@ const createProductSchema = z
     unit: z.string().min(1, "Unit is required"),
     harvested: z.boolean().optional(),
     willHarvestAt: z.date().optional(),
-    files: z.any(),
   })
   .superRefine((v, c) => {
     if (!v.harvested && !v.willHarvestAt) {
@@ -70,37 +69,17 @@ const createProductSchema = z
         path: ["willHarvestAt"],
       });
     }
-
-    if (!(v.files instanceof FileList)) {
-      c.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please select at least one photo",
-        path: ["files"],
-      });
-    } else if (v.files.length > 5) {
-      c.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "You can upload a maximum of 5 photos",
-        path: ["files"],
-      });
-    }
-
-    if (!areAllFilesImages(v.files)) {
-      c.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "All files must be images",
-        path: ["files"],
-      });
-    }
   });
 
-export type T_CreateProduct = z.infer<typeof createProductSchema>;
+export type T_CreateProduct = z.infer<typeof editProductSchema>;
 
-const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
-  const { userId } = use(params);
+const EditProduct: FC<{
+  params: Promise<{ userId: string; productId: string }>;
+}> = ({ params }) => {
+  const { userId, productId } = use(params);
 
   const form = useForm({
-    resolver: zodResolver(createProductSchema),
+    resolver: zodResolver(editProductSchema),
     defaultValues: {
       title: "",
       description: "",
@@ -112,16 +91,40 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
     },
   });
 
+  const query = useQuery({
+    queryKey: ["product", productId],
+    queryFn: async () => {
+      const response = await API_GetProduct(productId);
+      return response.data;
+    },
+  });
+
+  useEffect(() => {
+    if (query.isSuccess) {
+      form.reset({
+        title: query.data.title,
+        description: query.data.description,
+        pricePerUnit: String(query.data.pricePerUnit),
+        quantity: String(query.data.quantity),
+        unit: query.data.unit,
+        harvested: query.data.harvested,
+        willHarvestAt: query.data.willHarvestAt
+          ? new Date(query.data.willHarvestAt)
+          : new Date(),
+      });
+    }
+  }, [query.data]);
+
   const router = useRouter();
 
   const mutatation = useMutation({
-    mutationFn: API_CreateProduct,
+    mutationFn: API_UpdateProduct,
     onSuccess: () => {
       form.reset();
       form.setValue("harvested", true);
       form.setValue("willHarvestAt", new Date());
-      toast.success("Product created successfully");
-      return router.push(getPath(userId, "products"));
+      toast.success("Product updated successfully");
+      return router.push(getPath(userId, ["products", productId]));
     },
     onError: (error: AxiosError<{ message: string }>) => {
       mapFieldsOnError(error, form.setError);
@@ -142,21 +145,23 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
     if (data.willHarvestAt) {
       formData.append("willHarvestAt", data.willHarvestAt.toISOString());
     }
-    if (data.files) {
-      for (let i = 0; i < data.files.length; i++) {
-        formData.append("photo", data.files[i]);
-      }
-    }
-    return mutatation.mutate(formData);
+
+    return mutatation.mutate({ productId, data: formData });
   };
+
+  if (query.isLoading) return <Loader />;
 
   return (
     <div>
-      <PageHeader title="Add Product" />
+      <PageHeader title="Edit Product" />
       <CustomBreadcrumbs
         items={[
           { title: "Products", link: `/p/${userId}/products` },
-          { title: "Add" },
+          {
+            title: "View",
+            link: getPath(userId, ["products", productId]),
+          },
+          { title: "Edit" },
         ]}
       />
 
@@ -215,6 +220,7 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                       </FormLabel>
                       <FormControl>
                         <Select
+                          value={field.value}
                           onValueChange={(value) => {
                             form.setValue("unit", value);
                             form.clearErrors("unit");
@@ -252,32 +258,6 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                       </FormLabel>
                       <FormControl>
                         <Input placeholder="22" type="number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-
-              <FormField
-                control={form.control}
-                name="files"
-                render={({ field }) => {
-                  return (
-                    <FormItem className="w-full">
-                      <FormLabel>
-                        Photos <Required />{" "}
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={(e) => {
-                            form.setValue("files", e.target.files);
-                            form.clearErrors("files");
-                          }}
-                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -381,25 +361,11 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
               />
 
               <div className="flex justify-end gap-5">
-                <Link href={getPath(userId, "products")}>
+                <Link href={getPath(userId, ["products", productId])}>
                   <Button variant={"outline"}>
                     <CircleX /> Cancel
                   </Button>
                 </Link>
-                <Button
-                  type="button"
-                  variant={"destructive"}
-                  onClick={() => {
-                    form.reset();
-                    form.setValue("harvested", true);
-                    form.setValue("willHarvestAt", new Date());
-                    form.clearErrors();
-                    form.setValue("files", null);
-                  }}
-                >
-                  <Eraser />
-                  Clear
-                </Button>
                 <div>
                   <LoadingButton
                     type="submit"
@@ -407,7 +373,7 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
                     loading={mutatation.isPending}
                   >
                     <Send />
-                    Submit
+                    Update
                   </LoadingButton>
                 </div>
               </div>
@@ -419,4 +385,4 @@ const CreateProduct: FC<{ params: Promise<I_Params> }> = ({ params }) => {
   );
 };
 
-export default CreateProduct;
+export default EditProduct;

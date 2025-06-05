@@ -34,6 +34,7 @@ import {
   TriangleAlert,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FC, use, useState } from "react";
 import { toast } from "sonner";
@@ -139,9 +140,11 @@ const ProductView: FC<{
                 >
                   <Trash /> Delete
                 </Button>
-                <Button variant={"default"}>
-                  <PencilRuler /> Edit
-                </Button>
+                <Link href={getPath(userId, ["products", productId, "edit"])}>
+                  <Button variant={"default"}>
+                    <PencilRuler /> Edit
+                  </Button>
+                </Link>
               </div>
             )}
           </div>
