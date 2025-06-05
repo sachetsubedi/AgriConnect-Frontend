@@ -2,12 +2,12 @@
 
 import {
   AudioWaveform,
-  BookOpen,
   Command,
   Frame,
   GalleryVerticalEnd,
   LayoutDashboard,
   Map,
+  Package,
   PieChart,
   Settings2,
   ShoppingCart,
@@ -60,35 +60,21 @@ export function AppSidebar({
         url: `/p/${userId}/dashboard`,
         icon: LayoutDashboard,
         isActive: true,
+        value: "dashboard",
       },
       {
         title: "Products",
         url: `/p/${userId}/products`,
-        icon: ShoppingCart,
+        icon: Package,
+        value: "products",
       },
       {
-        title: "Documentation",
-        url: "#",
-        icon: BookOpen,
-        items: [
-          {
-            title: "Introduction",
-            url: "#",
-          },
-          {
-            title: "Get Started",
-            url: "#",
-          },
-          {
-            title: "Tutorials",
-            url: "#",
-          },
-          {
-            title: "Changelog",
-            url: "#",
-          },
-        ],
+        title: "Orders",
+        url: `/p/${userId}/orders`,
+        icon: ShoppingCart,
+        value: "orders",
       },
+
       {
         title: "Settings",
         url: "/settings",
