@@ -29,6 +29,12 @@ export const API_LoginUser = async (data: {
   return response.data;
 };
 
+export const API_LogoutUser = async () => {
+  const response: AxiosResponse<{ message: string; data: null }> =
+    await axiosInstance.post("/auth/logout");
+  return response.data;
+};
+
 export type T_ListingAttachment = {
   id: string;
   attachment: string;

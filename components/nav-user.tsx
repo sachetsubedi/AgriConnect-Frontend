@@ -25,6 +25,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { API_LogoutUser } from "@/lib/Api/api";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import LoadingButton from "./ui/loadingButton";
 
 export function NavUser({
   user,
@@ -36,6 +41,17 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+
+  const router = useRouter();
+
+  const logoutMutation = useMutation({
+    mutationFn: API_LogoutUser,
+    onSuccess: () => {
+      localStorage.removeItem("user");
+      toast.success("Logged out successfully");
+      return router.push("/login");
+    },
+  });
 
   return (
     <SidebarMenu>
@@ -98,10 +114,14 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <LoadingButton
+              variant="destructive"
+              onClick={() => logoutMutation.mutate()}
+              loading={logoutMutation.isPending}
+            >
               <LogOut />
               Log out
-            </DropdownMenuItem>
+            </LoadingButton>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
