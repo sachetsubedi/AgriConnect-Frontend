@@ -52,9 +52,9 @@ export type T_Product = {
   listingAttachments: T_ListingAttachment[];
 };
 
-export const API_GetAllProducts = async () => {
+export const API_GetAllProducts = async (searchQuery: string) => {
   const response: AxiosResponse<{ message: string; data: T_Product[] }> =
-    await axiosInstance.get("/listing");
+    await axiosInstance.get(`/listing/?search=${searchQuery}`);
   return response.data;
 };
 
