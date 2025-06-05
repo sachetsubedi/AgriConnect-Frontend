@@ -9,7 +9,7 @@ export type T_User = {
   phone: string;
   address: string;
   avatar: string;
-  userType: string;
+  userType: "buyer" | "seller";
   createdAt: string;
   updatedAt: string;
 };
@@ -67,5 +67,17 @@ export const API_CreateProduct = async (data: FormData) => {
 export const API_GetProduct = async (productId: string) => {
   const response: AxiosResponse<{ message: string; data: T_Product }> =
     await axiosInstance.get(`/listing/${productId}`);
+  return response.data;
+};
+
+export const API_UpdateProduct = async (productId: string, data: any) => {
+  const response: AxiosResponse<{ message: string; data: T_Product }> =
+    await axiosInstance.put(`/listing/${productId}`, data);
+  return response.data;
+};
+
+export const API_DeleteProduct = async (productId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Product }> =
+    await axiosInstance.delete(`/listing/${productId}`);
   return response.data;
 };

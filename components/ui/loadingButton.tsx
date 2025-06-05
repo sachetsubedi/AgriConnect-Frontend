@@ -15,7 +15,7 @@ const LoadingButton: FC<LoadingButtonProps> = ({
   ...props
 }) => {
   return (
-    <div className="w-full">
+    <div className="">
       <Button
         className={`flex gap-2 w-full`}
         {...props}

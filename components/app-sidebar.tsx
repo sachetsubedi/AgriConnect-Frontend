@@ -25,7 +25,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useSession } from "@/hooks/useSession";
-import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
 export function AppSidebar({
@@ -132,22 +131,17 @@ export function AppSidebar({
 
   const [user, setUser] = React.useState({ name: "", email: "", avatar: "" });
 
-  const query = useQuery({
-    queryFn: useSession,
-    queryKey: ["session"],
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-  });
+  const userData = useSession();
 
   React.useEffect(() => {
-    if (query.isSuccess) {
+    if (userData.isSuccess) {
       setUser({
-        name: query.data.data.name,
-        email: query.data.data.email,
-        avatar: query.data.data.avatar, // Assuming a static avatar for now
+        name: userData.data?.name || "",
+        email: userData.data?.email || "",
+        avatar: userData.data?.avatar || "",
       });
     }
-  }, [query.data]);
+  }, [userData.isSuccess]);
 
   return (
     <Sidebar collapsible="icon" {...props}>

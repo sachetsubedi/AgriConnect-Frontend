@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -11,17 +12,40 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import LoadingButton from "@/components/ui/loadingButton";
 import { Separator } from "@/components/ui/separator";
-import { API_GetProduct } from "@/lib/Api/api";
-import { formatDate } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { PackageCheck, Tractor } from "lucide-react";
-import { FC, use } from "react";
+import { useSession } from "@/hooks/useSession";
+import { API_DeleteProduct, API_GetProduct } from "@/lib/Api/api";
+import { formatDate, getPath } from "@/lib/utils";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import {
+  PackageCheck,
+  PencilRuler,
+  ShoppingCart,
+  Tractor,
+  Trash,
+  TriangleAlert,
+  X,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { FC, use, useState } from "react";
+import { toast } from "sonner";
 
 const ProductView: FC<{
   params: Promise<{ userId: string; productId: string }>;
 }> = ({ params }) => {
   const { userId, productId } = use(params);
+
+  const [deleDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const router = useRouter();
 
   const query = useQuery({
     queryKey: ["product"],
@@ -31,7 +55,21 @@ const ProductView: FC<{
     },
   });
 
-  if (query.isLoading) return <Loader />;
+  const deleteMutation = useMutation({
+    mutationFn: API_DeleteProduct,
+    onSuccess: () => {
+      toast.success("Product deleted successfully");
+      setDeleteDialogOpen(false);
+      router.push(getPath(userId, "products"));
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error?.response?.data?.message || "Failed to delete product");
+    },
+  });
+
+  const session = useSession();
+
+  if (query.isLoading || session.isLoading) return <Loader />;
 
   return (
     <div>
@@ -80,8 +118,33 @@ const ProductView: FC<{
           </Badge>
         </div>
         <div className="mt-3 text-slate-600 flex justify-between">
-          <div>{query.data?.description}</div>
-          <div>Posted at: {formatDate(query.data?.createdAt || "")} </div>
+          <div className="flex flex-col gap-2">
+            <div>{query.data?.description}</div>
+            <div className="text-sm">
+              Posted at: {formatDate(query.data?.createdAt || "")}{" "}
+            </div>
+          </div>
+          <div>
+            {session.data?.userType === "buyer" && (
+              <Button disabled={!query.data?.quantity}>
+                <ShoppingCart></ShoppingCart>{" "}
+                {query.data?.quantity ? "Buy" : "Out of Stock"}
+              </Button>
+            )}
+            {session.data?.id === query.data?.sellerId && (
+              <div className="flex gap-2">
+                <Button
+                  variant={"destructive"}
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  <Trash /> Delete
+                </Button>
+                <Button variant={"default"}>
+                  <PencilRuler /> Edit
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         <Separator className="my-5" />
@@ -124,6 +187,40 @@ const ProductView: FC<{
           </div>
         </div>
       </div>
+
+      <Dialog open={deleDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogTitle className="text-center">
+            <TriangleAlert
+              className="mx-auto mb-2 text-destructive"
+              size={40}
+            />
+            Are you sure you want to delete this product?
+          </DialogTitle>
+          <div></div>
+          <DialogFooter>
+            <Button
+              variant={"outline"}
+              onClick={() => {
+                setDeleteDialogOpen(false);
+              }}
+            >
+              <X />
+              Cancel
+            </Button>
+            <LoadingButton
+              variant={"destructive"}
+              loading={deleteMutation.isPending}
+              onClick={() => {
+                deleteMutation.mutate(productId);
+              }}
+            >
+              <Trash />
+              Delete
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
