@@ -16,17 +16,25 @@ import {
 import { API_GetAllUserOrders } from "@/lib/Api/api";
 import { useQuery } from "@tanstack/react-query";
 import { EllipsisVertical, Eraser, Search } from "lucide-react";
-import { FC, use } from "react";
+import { FC, use, useEffect, useState } from "react";
 
 const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   const { userId } = use(params);
+  const [isClient, setIsClient] = useState(false);
+  const [toSearch, setToSearch] = useState("");
 
   const query = useQuery({
-    queryKey: [`orders-${userId}`],
-    queryFn: API_GetAllUserOrders,
+    queryKey: [`orders-${userId}${toSearch}`],
+    queryFn: () => {
+      return API_GetAllUserOrders(toSearch);
+    },
   });
 
-  if (query.isLoading) return <Loader />;
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null;
 
   return (
     <div>
@@ -41,10 +49,20 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
       <div className="mt-5">
         <div className="my-5 flex gap-2">
           <Input placeholder="Search Orders" />
-          <Button>
+          <Button
+            onClick={() => {
+              setToSearch(document.querySelector("input")?.value || "");
+            }}
+          >
             <Search /> Search
           </Button>
-          <Button variant={"outline"}>
+          <Button
+            variant={"outline"}
+            onClick={() => {
+              setToSearch("");
+              document.querySelector("input")!.value = "";
+            }}
+          >
             <Eraser /> Clear
           </Button>
         </div>
@@ -60,28 +78,42 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {query.data?.data.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell>{order.orderNumber}</TableCell>
-                <TableCell>{order.listing.title}</TableCell>
-                <TableCell>{`${order.quantity} ${order.listing.unit}${
-                  Number(order.quantity) > 1 ? "s" : ""
-                }  `}</TableCell>
-                <TableCell>Rs {order.totalPrice}</TableCell>
-                <TableCell>
-                  {" "}
-                  <StatusComponent status={order.status} />
-                </TableCell>
-                <TableCell>
-                  <Button variant="link">
-                    <EllipsisVertical />{" "}
-                  </Button>
+            {query.data &&
+              query.data?.data.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>{order.orderNumber}</TableCell>
+                  <TableCell>{order.listing.title}</TableCell>
+                  <TableCell>{`${order.quantity} ${order.listing.unit}${
+                    Number(order.quantity) > 1 ? "s" : ""
+                  }  `}</TableCell>
+                  <TableCell>Rs {order.totalPrice}</TableCell>
+                  <TableCell>
+                    {" "}
+                    <StatusComponent status={order.status} />
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="link">
+                      <EllipsisVertical />{" "}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            {query.data && query.data?.data.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center font-[500]">
+                  No orders found.
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>
+
+      {query.isLoading && (
+        <div className="flex h-2/6 items-center justify-center">
+          <Loader />
+        </div>
+      )}
     </div>
   );
 };

@@ -4,7 +4,7 @@ const StatusComponent: FC<{
   status: "PENDING" | "COMPLETED" | "REJECTED";
 }> = ({ status }) => {
   return (
-    <div
+    <span
       className={`capitalize w-fit px-2 rounded-full text-white ${
         status === "PENDING"
           ? "bg-yellow-600"
@@ -14,7 +14,7 @@ const StatusComponent: FC<{
       }`}
     >
       {status}{" "}
-    </div>
+    </span>
   );
 };
 

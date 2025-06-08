@@ -104,9 +104,9 @@ type T_Order = {
   status: "PENDING" | "COMPLETED" | "REJECTED";
 };
 
-export const API_GetAllUserOrders = async () => {
+export const API_GetAllUserOrders = async (search?: string) => {
   const response: AxiosResponse<{ message: string; data: T_Order[] }> =
-    await axiosInstance.get(`/order`);
+    await axiosInstance.get(`/order?search=${search || ""}`);
   return response.data;
 };
 
