@@ -109,3 +109,12 @@ export const API_GetAllUserOrders = async () => {
     await axiosInstance.get(`/order`);
   return response.data;
 };
+
+export const API_CreateOrder = async (data: {
+  productId: string;
+  quantity: number;
+}) => {
+  const response: AxiosResponse<{ message: string; data: T_Order }> =
+    await axiosInstance.post("/order", data);
+  return response.data;
+};

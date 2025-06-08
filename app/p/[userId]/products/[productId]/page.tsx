@@ -23,8 +23,12 @@ import { Label } from "@/components/ui/label";
 import LoadingButton from "@/components/ui/loadingButton";
 import { Separator } from "@/components/ui/separator";
 import { useSession } from "@/hooks/useSession";
-import { API_DeleteProduct, API_GetProduct } from "@/lib/Api/api";
-import { formatDate, getPath } from "@/lib/utils";
+import {
+  API_CreateOrder,
+  API_DeleteProduct,
+  API_GetProduct,
+} from "@/lib/Api/api";
+import { formatDate, getPath, mapFieldsOnError } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -45,26 +49,29 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const orderSchema = z.object({
-  quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
-  price: z.coerce.number().min(0, "Price must be at least 0").optional(),
-});
-// .superRefine((data, ctx) => {
-//   if (Number(data.quantity) < 1) {
-//     ctx.addIssue({
-//       code: z.ZodIssueCode.custom,
-//       message: "Quantity must be at least 1",
-//       path: ["quantity"],
-//     });
-//   }
-// });
+const orderSchema = z
+  .object({
+    quantity: z.coerce.number().positive("Quantity must be greater than 0"),
+    price: z.coerce.number().min(0, "Price must be at least 0").optional(),
+    availableQuantity: z.number().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (Number(data.quantity) > (data.availableQuantity || 0)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Quantity cannot be more than available quantity:  ${data.availableQuantity} `,
+        path: ["quantity"],
+      });
+    }
+  });
 
 const ProductView: FC<{
   params: Promise<{ userId: string; productId: string }>;
 }> = ({ params }) => {
   const { userId, productId } = use(params);
 
-  const [deleDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
 
   const router = useRouter();
 
@@ -88,6 +95,19 @@ const ProductView: FC<{
     },
   });
 
+  const orderMutation = useMutation({
+    mutationFn: API_CreateOrder,
+    onSuccess: () => {
+      toast.success("Order placed successfully");
+      setOrderDialogOpen(false);
+      router.push(getPath(userId, "orders"));
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error?.response?.data?.message || "Failed to place order");
+      mapFieldsOnError(error, orderForm.setError);
+    },
+  });
+
   const orderForm = useForm({
     defaultValues: {
       quantity: 1,
@@ -101,6 +121,7 @@ const ProductView: FC<{
       orderForm.reset({
         quantity: 1,
         price: query.data.pricePerUnit,
+        availableQuantity: Number(query.data.quantity),
       });
     }
   }, [query.data]);
@@ -164,7 +185,10 @@ const ProductView: FC<{
           </div>
           <div>
             {session.data?.userType === "buyer" && (
-              <Button disabled={!query.data?.quantity}>
+              <Button
+                disabled={!query.data?.quantity}
+                onClick={() => setOrderDialogOpen(true)}
+              >
                 <ShoppingCart></ShoppingCart>{" "}
                 {query.data?.quantity ? "Buy" : "Out of Stock"}
               </Button>
@@ -228,7 +252,7 @@ const ProductView: FC<{
         </div>
       </div>
 
-      <Dialog open={deleDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogTitle className="text-center">
             <TriangleAlert
@@ -262,7 +286,7 @@ const ProductView: FC<{
         </DialogContent>
       </Dialog>
 
-      <Dialog open>
+      <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
         <DialogContent>
           <DialogTitle className="flex justify-center items-center gap-3 text-center">
             {/* <ShoppingCartIcon className="text-primary" />  */}
@@ -275,18 +299,19 @@ const ProductView: FC<{
           <div className="flex justify-between items-end gap-3">
             <div className="w-full">
               <Label>Quantity</Label>
-              <Input
-                {...orderForm.register("quantity")}
-                type="number"
-                className="w-full"
-              />
-              <Label className="text-destructive">
-                {orderForm.formState.errors.quantity?.message}{" "}
-              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  {...orderForm.register("quantity")}
+                  type="number"
+                  className="w-full"
+                />
+                <span className="font-[500]">{`${query.data?.unit}${
+                  orderForm.watch("quantity") > 1 ? "s" : ""
+                }`}</span>
+              </div>
             </div>
             <div>
               <X size={20} />
-              {orderForm.formState.errors.quantity && <Label> &nbsp; </Label>}
             </div>
             <div className="w-full">
               <Label>Price</Label>
@@ -295,9 +320,11 @@ const ProductView: FC<{
                 {...orderForm.register("price")}
                 className="w-full"
               />
-              {orderForm.formState.errors.quantity && <Label> &nbsp; </Label>}
             </div>
           </div>
+          <Label className="text-destructive">
+            {orderForm.formState.errors.quantity?.message}{" "}
+          </Label>
           <div className="font-bold">
             <span className="text-muted-foreground">Total:</span> Rs{" "}
             {orderForm.watch("quantity")
@@ -306,14 +333,23 @@ const ProductView: FC<{
           </div>
 
           <DialogFooter>
-            <Button variant={"outline"} type="button">
+            <Button
+              variant={"outline"}
+              type="button"
+              onClick={() => setOrderDialogOpen(false)}
+            >
               <CircleX /> Cancel
             </Button>
             <LoadingButton
               type="submit"
+              loading={orderMutation.isPending}
               onClick={() => {
                 orderForm.handleSubmit(() => {
                   console.log("submitted");
+                  orderMutation.mutate({
+                    productId: productId,
+                    quantity: Number(orderForm.watch("quantity")),
+                  });
                 })();
               }}
             >
