@@ -4,6 +4,12 @@ import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
 import StatusComponent from "@/components/products/statusComponent";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -13,9 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useSession } from "@/hooks/useSession";
 import { API_GetAllUserOrders } from "@/lib/Api/api";
 import { useQuery } from "@tanstack/react-query";
-import { EllipsisVertical, Eraser, Search } from "lucide-react";
+import { Check, EllipsisVertical, Eraser, Search, X } from "lucide-react";
 import { FC, use, useEffect, useState } from "react";
 
 const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
@@ -30,11 +37,49 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
     },
   });
 
+  const session = useSession();
+
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  const actionsForSeller = [
+    {
+      label: "Accept Order",
+      icon: <Check className="text-green-500" />,
+      action: (orderId: string) => {
+        // Implement view order logic
+      },
+    },
+    {
+      label: "Reject Order",
+      icon: <X className="text-red-500" />,
+      action: (orderId: string) => {
+        // Implement update status logic
+      },
+    },
+  ];
+
+  const actionsForBuyer = [
+    {
+      label: "View Order",
+      icon: <Check />,
+      action: (orderId: string) => {
+        // Implement view order logic
+      },
+    },
+    {
+      label: "Cancel Order",
+      icon: <X className="text-destructive" />,
+      action: (orderId: string) => {
+        // Implement cancel order logic
+      },
+    },
+  ];
+
   if (!isClient) return null;
+
+  if (session.isLoading) return <Loader />;
 
   return (
     <div>
@@ -79,6 +124,7 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
           </TableHeader>
           <TableBody>
             {query.data &&
+              query.data.data.length > 0 &&
               query.data?.data.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>{order.orderNumber}</TableCell>
@@ -92,13 +138,40 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                     <StatusComponent status={order.status} />
                   </TableCell>
                   <TableCell>
-                    <Button variant="link">
-                      <EllipsisVertical />{" "}
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="focus:outline-none focus:ring-0">
+                        <EllipsisVertical size={20} className="font-normal" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        {session.data?.userType === "seller" &&
+                          actionsForSeller.map((action, index) => {
+                            return (
+                              <DropdownMenuItem
+                                className="cursor-pointer font-[500]"
+                                key={index}
+                              >
+                                {action.icon} {action.label}
+                              </DropdownMenuItem>
+                            );
+                          })}
+
+                        {session.data?.userType === "buyer" &&
+                          actionsForBuyer.map((action, index) => {
+                            return (
+                              <DropdownMenuItem
+                                className="cursor-pointer font-[500]"
+                                key={index}
+                              >
+                                {action.icon} {action.label}
+                              </DropdownMenuItem>
+                            );
+                          })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
               ))}
-            {query.data && query.data?.data.length === 0 && (
+            {query.data && query.data?.data.length == 0 && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center font-[500]">
                   No orders found.
