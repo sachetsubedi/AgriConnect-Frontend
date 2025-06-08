@@ -95,13 +95,13 @@ export const API_DeleteProduct = async (productId: string) => {
 type T_Order = {
   id: string;
   orderNumber: String;
-  productId: string;
-  product: T_Product;
+  listingId: string;
+  listing: T_Product;
   buyerId: string;
   buyer: T_User;
   quantity: number;
   totalPrice: number;
-  status: "pending" | "completed" | "cancelled";
+  status: "PENDING" | "COMPLETED" | "REJECTED";
 };
 
 export const API_GetAllUserOrders = async () => {
