@@ -118,3 +118,21 @@ export const API_CreateOrder = async (data: {
     await axiosInstance.post("/order", data);
   return response.data;
 };
+
+export const API_AcceptOrder = async (orderId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Order }> =
+    await axiosInstance.post(`/order/${orderId}/accept`);
+  return response.data;
+};
+
+export const API_RejectOrder = async (orderId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Order }> =
+    await axiosInstance.post(`/order/${orderId}/reject`);
+  return response.data;
+};
+
+export const API_CancelOrder = async (orderId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Order }> =
+    await axiosInstance.post(`/order/${orderId}/cancel`);
+  return response.data;
+};

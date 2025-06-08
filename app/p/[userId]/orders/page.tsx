@@ -5,12 +5,19 @@ import PageHeader from "@/components/PageHeader";
 import StatusComponent from "@/components/products/statusComponent";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import LoadingButton from "@/components/ui/loadingButton";
 import {
   Table,
   TableBody,
@@ -20,15 +27,40 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSession } from "@/hooks/useSession";
-import { API_GetAllUserOrders } from "@/lib/Api/api";
-import { useQuery } from "@tanstack/react-query";
-import { Check, EllipsisVertical, Eraser, Search, X } from "lucide-react";
+import {
+  API_AcceptOrder,
+  API_CancelOrder,
+  API_GetAllUserOrders,
+  API_RejectOrder,
+} from "@/lib/Api/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import {
+  Check,
+  CircleX,
+  EllipsisVertical,
+  Eraser,
+  PackageCheck,
+  PackageX,
+  Search,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import { FC, use, useEffect, useState } from "react";
+import { toast } from "sonner";
+
+type T_Actions = "accept" | "reject" | "cancel";
 
 const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   const { userId } = use(params);
   const [isClient, setIsClient] = useState(false);
   const [toSearch, setToSearch] = useState("");
+
+  const [actionToPerform, setActionToPerform] = useState<{
+    id: string;
+    action: T_Actions;
+    content: string;
+  } | null>(null);
 
   const query = useQuery({
     queryKey: [`orders-${userId}${toSearch}`],
@@ -43,12 +75,56 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
     setIsClient(true);
   }, []);
 
+  const acceptOrderMutation = useMutation({
+    mutationFn: API_AcceptOrder,
+    onSuccess: () => {
+      toast.success("Order accepted successfully");
+      query.refetch();
+      setActionToPerform(null);
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
+    },
+  });
+
+  const rejectOrderMutation = useMutation({
+    mutationFn: API_RejectOrder,
+    onSuccess: () => {
+      toast.success("Order rejected successfully");
+      query.refetch();
+      setActionToPerform(null);
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
+    },
+  });
+
+  const calcelOrderMutation = useMutation({
+    mutationFn: API_CancelOrder,
+    onSuccess: () => {
+      toast.success("Order canceled successfully");
+      query.refetch();
+      setActionToPerform(null);
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
+    },
+  });
+
   const actionsForSeller = [
     {
       label: "Accept Order",
       icon: <Check className="text-green-500" />,
       action: (orderId: string) => {
         // Implement view order logic
+        setActionToPerform({
+          id: orderId,
+          action: "accept",
+          content: "Are you sure you want to accept this order?",
+        });
       },
     },
     {
@@ -56,23 +132,26 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
       icon: <X className="text-red-500" />,
       action: (orderId: string) => {
         // Implement update status logic
+        setActionToPerform({
+          id: orderId,
+          action: "reject",
+          content: "Are you sure you want to reject this order?",
+        });
       },
     },
   ];
 
   const actionsForBuyer = [
     {
-      label: "View Order",
-      icon: <Check />,
-      action: (orderId: string) => {
-        // Implement view order logic
-      },
-    },
-    {
       label: "Cancel Order",
       icon: <X className="text-destructive" />,
       action: (orderId: string) => {
         // Implement cancel order logic
+        setActionToPerform({
+          id: orderId,
+          action: "cancel",
+          content: "Are you sure you want to cancel this order?",
+        });
       },
     },
   ];
@@ -133,6 +212,7 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                     Number(order.quantity) > 1 ? "s" : ""
                   }  `}</TableCell>
                   <TableCell>Rs {order.totalPrice}</TableCell>
+
                   <TableCell>
                     {" "}
                     <StatusComponent status={order.status} />
@@ -149,6 +229,9 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                               <DropdownMenuItem
                                 className="cursor-pointer font-[500]"
                                 key={index}
+                                onClick={() => {
+                                  action.action(order.id);
+                                }}
                               >
                                 {action.icon} {action.label}
                               </DropdownMenuItem>
@@ -161,6 +244,9 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                               <DropdownMenuItem
                                 className="cursor-pointer font-[500]"
                                 key={index}
+                                onClick={() => {
+                                  action.action(order.id);
+                                }}
                               >
                                 {action.icon} {action.label}
                               </DropdownMenuItem>
@@ -186,6 +272,70 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
         <div className="flex h-2/6 items-center justify-center">
           <Loader />
         </div>
+      )}
+
+      {actionToPerform && (
+        <Dialog
+          open={!!actionToPerform}
+          onOpenChange={() => setActionToPerform(null)}
+        >
+          <DialogContent>
+            <DialogTitle className="flex justify-center flex-col gap-5 items-center">
+              {" "}
+              {actionToPerform.action === "reject" ? (
+                <PackageX size={40} className="text-red-500" />
+              ) : actionToPerform.action === "cancel" ? (
+                <TriangleAlert size={40} className="text-yellow-500" />
+              ) : (
+                <PackageCheck size={40} className="text-green-500" />
+              )}
+              <div>{actionToPerform.content}</div>
+            </DialogTitle>
+            <DialogFooter>
+              <Button
+                variant={"outline"}
+                onClick={() => setActionToPerform(null)}
+              >
+                <CircleX /> Cancel
+              </Button>
+              <LoadingButton
+                variant={
+                  actionToPerform.action == "reject" ? "destructive" : "default"
+                }
+                onClick={() => {
+                  if (actionToPerform?.action === "accept") {
+                    acceptOrderMutation.mutate(actionToPerform.id);
+                  } else if (actionToPerform?.action === "reject") {
+                    rejectOrderMutation.mutate(actionToPerform.id);
+                  } else if (actionToPerform?.action === "cancel") {
+                    calcelOrderMutation.mutate(actionToPerform.id);
+                  }
+                }}
+                loading={
+                  acceptOrderMutation.isPending ||
+                  rejectOrderMutation.isPending ||
+                  calcelOrderMutation.isPending
+                }
+              >
+                {actionToPerform.action === "accept" && (
+                  <>
+                    <Check /> Accept
+                  </>
+                )}
+                {actionToPerform.action === "reject" && (
+                  <>
+                    <X /> Reject
+                  </>
+                )}
+                {actionToPerform.action === "cancel" && (
+                  <>
+                    <TriangleAlert /> Cancel
+                  </>
+                )}
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

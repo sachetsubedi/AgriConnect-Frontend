@@ -5,7 +5,7 @@ const StatusComponent: FC<{
 }> = ({ status }) => {
   return (
     <span
-      className={`capitalize w-fit px-2 rounded-full text-white ${
+      className={`capitalize w-fit px-2 py-1 text-[10px] font-bold rounded-full text-white ${
         status === "PENDING"
           ? "bg-yellow-600"
           : status === "COMPLETED"
