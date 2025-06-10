@@ -35,8 +35,9 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const pathname = usePathname();
+
   const isActive = (value: string) => {
-    const pathname = usePathname();
     const splittedPath = pathname.split("/");
     return splittedPath.includes(value);
   };
