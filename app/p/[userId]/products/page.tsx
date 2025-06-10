@@ -60,8 +60,7 @@ const Page: FC<{
       </div>
       <div className="flex flex-wrap gap-10">
         {productsQuery.isLoading && (
-          <div className="flex justify-center items-center mt-10">
-            {" "}
+          <div className="flex justify-center items-center mt-10 w-full">
             <Loader />{" "}
           </div>
         )}
