@@ -30,9 +30,12 @@ import { useSession } from "@/hooks/useSession";
 import {
   API_AcceptOrder,
   API_CancelOrder,
+  API_CompleteOrder,
   API_GetAllUserOrders,
   API_RejectOrder,
+  T_OrderStatus,
 } from "@/lib/Api/api";
+import { getPath } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import {
@@ -40,16 +43,18 @@ import {
   CircleX,
   EllipsisVertical,
   Eraser,
+  Eye,
   PackageCheck,
   PackageX,
   Search,
   TriangleAlert,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { FC, use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-type T_Actions = "accept" | "reject" | "cancel";
+type T_Actions = "accept" | "reject" | "cancel" | "complete";
 
 const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   const { userId } = use(params);
@@ -114,47 +119,106 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
     },
   });
 
-  const actionsForSeller = [
-    {
-      label: "Accept Order",
-      icon: <Check className="text-green-500" />,
-      action: (orderId: string) => {
-        // Implement view order logic
-        setActionToPerform({
-          id: orderId,
-          action: "accept",
-          content: "Are you sure you want to accept this order?",
-        });
-      },
+  const completeOrderMutation = useMutation({
+    mutationFn: API_CompleteOrder,
+    onSuccess: () => {
+      toast.success("Order marked as completed successfully");
+      query.refetch();
+      setActionToPerform(null);
     },
-    {
-      label: "Reject Order",
-      icon: <X className="text-red-500" />,
-      action: (orderId: string) => {
-        // Implement update status logic
-        setActionToPerform({
-          id: orderId,
-          action: "reject",
-          content: "Are you sure you want to reject this order?",
-        });
-      },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
     },
-  ];
+  });
 
-  const actionsForBuyer = [
-    {
-      label: "Cancel Order",
-      icon: <X className="text-destructive" />,
-      action: (orderId: string) => {
-        // Implement cancel order logic
-        setActionToPerform({
-          id: orderId,
-          action: "cancel",
-          content: "Are you sure you want to cancel this order?",
-        });
-      },
-    },
-  ];
+  const getActions = (args: {
+    userType: "seller" | "buyer";
+    status: T_OrderStatus;
+  }) => {
+    const { userType } = args;
+    const actions = [];
+    switch (userType) {
+      case "seller":
+        if (args.status === "PENDING") {
+          actions.push({
+            label: "Accept Order",
+            icon: <Check className="text-green-500" />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "accept",
+                content: "Are you sure you want to accept this order?",
+              });
+            },
+          });
+          actions.push({
+            label: "Reject Order",
+            icon: <X className="text-red-500" />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "reject",
+                content: "Are you sure you want to reject this order?",
+              });
+            },
+          });
+        } else if (args.status === "ACCEPTED") {
+          actions.push({
+            label: "Mark Completed",
+            icon: <PackageCheck className="text-green-500" />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "complete",
+                content:
+                  "Are you sure you want to mark this order as completed?",
+              });
+            },
+          });
+          actions.push({
+            label: "Reject Order",
+            icon: <PackageCheck className="text-destructive" />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "reject",
+                content: "Are you sure you want to reject this order?",
+              });
+            },
+          });
+        } else if (args.status === "REJECTED") {
+          actions.push({
+            label: "Accept Order",
+            icon: <Check className="text-green-500" />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "accept",
+                content: "Are you sure you want to accept this order?",
+              });
+            },
+          });
+        }
+        break;
+      case "buyer":
+        if (args.status === "PENDING") {
+          actions.push({
+            label: "Cancel Order",
+            icon: <X className="text-destructive" />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "cancel",
+                content: "Are you sure you want to cancel this order?",
+              });
+            },
+          });
+        }
+        break;
+    }
+    return actions;
+  };
 
   if (!isClient) return null;
 
@@ -223,35 +287,28 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                         <EllipsisVertical size={20} className="font-normal" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        {session.data?.userType === "seller" &&
-                          actionsForSeller.map((action, index) => {
-                            return (
-                              <DropdownMenuItem
-                                className="cursor-pointer font-[500]"
-                                key={index}
-                                onClick={() => {
-                                  action.action(order.id);
-                                }}
-                              >
-                                {action.icon} {action.label}
-                              </DropdownMenuItem>
-                            );
-                          })}
+                        <Link href={getPath(userId, ["orders", order.id])}>
+                          <DropdownMenuItem className="cursor-pointer font-[500] flex gap-2 items-center">
+                            <Eye size={20} /> View
+                          </DropdownMenuItem>
+                        </Link>
 
-                        {session.data?.userType === "buyer" &&
-                          actionsForBuyer.map((action, index) => {
-                            return (
-                              <DropdownMenuItem
-                                className="cursor-pointer font-[500]"
-                                key={index}
-                                onClick={() => {
-                                  action.action(order.id);
-                                }}
-                              >
-                                {action.icon} {action.label}
-                              </DropdownMenuItem>
-                            );
-                          })}
+                        {getActions({
+                          userType: session.data?.userType || "buyer",
+                          status: order.status,
+                        }).map((action, index) => {
+                          return (
+                            <DropdownMenuItem
+                              className={`cursor-pointer font-[500]`}
+                              key={index}
+                              onClick={() => {
+                                action.action(order.id);
+                              }}
+                            >
+                              {action.icon} {action.label}
+                            </DropdownMenuItem>
+                          );
+                        })}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -309,6 +366,8 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                     rejectOrderMutation.mutate(actionToPerform.id);
                   } else if (actionToPerform?.action === "cancel") {
                     calcelOrderMutation.mutate(actionToPerform.id);
+                  } else if (actionToPerform?.action === "complete") {
+                    completeOrderMutation.mutate(actionToPerform.id);
                   }
                 }}
                 loading={
@@ -330,6 +389,11 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                 {actionToPerform.action === "cancel" && (
                   <>
                     <TriangleAlert /> Cancel
+                  </>
+                )}
+                {actionToPerform.action === "complete" && (
+                  <>
+                    <Check /> Completed
                   </>
                 )}
               </LoadingButton>

@@ -1,7 +1,7 @@
 import { FC } from "react";
 
 const StatusComponent: FC<{
-  status: "PENDING" | "COMPLETED" | "REJECTED";
+  status: "PENDING" | "COMPLETED" | "REJECTED" | "ACCEPTED";
 }> = ({ status }) => {
   return (
     <span
@@ -9,6 +9,8 @@ const StatusComponent: FC<{
         status === "PENDING"
           ? "bg-yellow-600"
           : status === "COMPLETED"
+          ? "bg-green-600"
+          : status === "ACCEPTED"
           ? "bg-green-600"
           : "bg-destructive"
       }`}
