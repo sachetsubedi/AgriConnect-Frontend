@@ -32,7 +32,7 @@ const Page: FC<{
 
   const { userId } = use(params);
 
-  if (productsQuery.isLoading || session.isLoading) return <Loader />;
+  if (session.isLoading) return <Loader />;
 
   return (
     <div>
@@ -59,15 +59,18 @@ const Page: FC<{
         />
       </div>
       <div className="flex flex-wrap gap-10">
-        {productsQuery.data?.data.map((product, index) => (
-          <Link
-            href={getPath(userId, ["products", product.id])}
-            key={index}
-            className="mb-4"
-          >
-            <ProductCard product={product} />
-          </Link>
-        ))}
+        {productsQuery.isLoading && <Loader />}
+        {productsQuery.isSuccess &&
+          productsQuery.data &&
+          productsQuery.data?.data.map((product, index) => (
+            <Link
+              href={getPath(userId, ["products", product.id])}
+              key={index}
+              className="mb-4"
+            >
+              <ProductCard product={product} />
+            </Link>
+          ))}
       </div>
     </div>
   );
