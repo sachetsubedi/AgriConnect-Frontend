@@ -92,21 +92,29 @@ export const API_DeleteProduct = async (productId: string) => {
   return response.data;
 };
 
-type T_Order = {
+export type T_OrderStatus = "PENDING" | "COMPLETED" | "REJECTED" | "ACCEPTED";
+
+export type T_Order = {
   id: string;
-  orderNumber: String;
+  orderNumber: string;
   listingId: string;
   listing: T_Product;
   buyerId: string;
   buyer: T_User;
   quantity: number;
   totalPrice: number;
-  status: "PENDING" | "COMPLETED" | "REJECTED";
+  status: "PENDING" | "COMPLETED" | "REJECTED" | "ACCEPTED";
 };
 
 export const API_GetAllUserOrders = async (search?: string) => {
   const response: AxiosResponse<{ message: string; data: T_Order[] }> =
     await axiosInstance.get(`/order?search=${search || ""}`);
+  return response.data;
+};
+
+export const API_GetOrder = async (orderId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Order }> =
+    await axiosInstance.get(`/order/${orderId}`);
   return response.data;
 };
 
@@ -134,5 +142,11 @@ export const API_RejectOrder = async (orderId: string) => {
 export const API_CancelOrder = async (orderId: string) => {
   const response: AxiosResponse<{ message: string; data: T_Order }> =
     await axiosInstance.post(`/order/${orderId}/cancel`);
+  return response.data;
+};
+
+export const API_CompleteOrder = async (orderId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Order }> =
+    await axiosInstance.post(`/order/${orderId}/complete`);
   return response.data;
 };
