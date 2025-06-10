@@ -346,7 +346,10 @@ const OrderViewPage: FC<{
               </Button>
               <LoadingButton
                 variant={
-                  actionToPerform.action == "reject" ? "destructive" : "default"
+                  actionToPerform.action == "reject" ||
+                  actionToPerform.action == "cancel"
+                    ? "destructive"
+                    : "default"
                 }
                 onClick={() => {
                   if (actionToPerform?.action === "accept") {

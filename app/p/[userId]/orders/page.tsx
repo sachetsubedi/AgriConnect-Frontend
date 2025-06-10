@@ -357,7 +357,10 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
               </Button>
               <LoadingButton
                 variant={
-                  actionToPerform.action == "reject" ? "destructive" : "default"
+                  actionToPerform.action == "reject" ||
+                  actionToPerform.action == "cancel"
+                    ? "destructive"
+                    : "default"
                 }
                 onClick={() => {
                   if (actionToPerform?.action === "accept") {
