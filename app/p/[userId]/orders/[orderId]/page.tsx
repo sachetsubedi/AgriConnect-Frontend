@@ -4,15 +4,48 @@ import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
 import StatusComponent from "@/components/products/statusComponent";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { API_GetOrder } from "@/lib/Api/api";
-import { useQuery } from "@tanstack/react-query";
-import { FC, ReactNode, use } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import LoadingButton from "@/components/ui/loadingButton";
+import { useSession } from "@/hooks/useSession";
+import {
+  API_AcceptOrder,
+  API_CancelOrder,
+  API_CompleteOrder,
+  API_GetOrder,
+  API_RejectOrder,
+  T_OrderStatus,
+} from "@/lib/Api/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import {
+  Check,
+  CircleX,
+  PackageCheck,
+  PackageX,
+  TriangleAlert,
+  X,
+} from "lucide-react";
+import { FC, ReactNode, use, useState } from "react";
+import { toast } from "sonner";
+import { T_Actions } from "../page";
 
 const OrderViewPage: FC<{
   params: Promise<{ userId: string; orderId: string }>;
 }> = ({ params }) => {
   const { orderId, userId } = use(params);
+  const session = useSession();
+  const [actionToPerform, setActionToPerform] = useState<{
+    id: string;
+    action: T_Actions;
+    content: string;
+  } | null>(null);
 
   const query = useQuery({
     queryKey: ["order", orderId],
@@ -22,7 +55,153 @@ const OrderViewPage: FC<{
     },
   });
 
-  if (query.isLoading) return <Loader />;
+  const acceptOrderMutation = useMutation({
+    mutationFn: API_AcceptOrder,
+    onSuccess: () => {
+      toast.success("Order accepted successfully");
+      query.refetch();
+      setActionToPerform(null);
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
+    },
+  });
+
+  const rejectOrderMutation = useMutation({
+    mutationFn: API_RejectOrder,
+    onSuccess: () => {
+      toast.success("Order rejected successfully");
+      query.refetch();
+      setActionToPerform(null);
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
+    },
+  });
+
+  const calcelOrderMutation = useMutation({
+    mutationFn: API_CancelOrder,
+    onSuccess: () => {
+      toast.success("Order canceled successfully");
+      query.refetch();
+      setActionToPerform(null);
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
+    },
+  });
+
+  const completeOrderMutation = useMutation({
+    mutationFn: API_CompleteOrder,
+    onSuccess: () => {
+      toast.success("Order marked as completed successfully");
+      query.refetch();
+      setActionToPerform(null);
+    },
+    onError: (error: AxiosError<any>) => {
+      toast.error(error.response?.data.message);
+      setActionToPerform(null);
+    },
+  });
+
+  const getActions = (args: {
+    userType: "seller" | "buyer";
+    status: T_OrderStatus;
+  }) => {
+    const { userType } = args;
+    const actions = [];
+    switch (userType) {
+      case "seller":
+        if (args.status === "PENDING") {
+          actions.push({
+            label: "Accept Order",
+            icon: <Check />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "accept",
+                content: "Are you sure you want to accept this order?",
+              });
+            },
+            color: "default",
+          });
+          actions.push({
+            label: "Reject Order",
+            icon: <X />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "reject",
+                content: "Are you sure you want to reject this order?",
+              });
+            },
+            color: "destructive",
+          });
+        } else if (args.status === "ACCEPTED") {
+          actions.push({
+            label: "Mark Completed",
+            icon: <PackageCheck />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "complete",
+                content:
+                  "Are you sure you want to mark this order as completed?",
+              });
+            },
+            color: "default",
+          });
+          actions.push({
+            label: "Reject Order",
+            icon: <X />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "reject",
+                content: "Are you sure you want to reject this order?",
+              });
+            },
+            color: "destructive",
+          });
+        } else if (args.status === "REJECTED") {
+          actions.push({
+            label: "Accept Order",
+            icon: <Check />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "accept",
+                content: "Are you sure you want to accept this order?",
+              });
+            },
+            color: "default",
+          });
+        }
+        break;
+      case "buyer":
+        if (args.status === "PENDING") {
+          actions.push({
+            label: "Cancel Order",
+            icon: <X />,
+            action: (orderId: string) => {
+              setActionToPerform({
+                id: orderId,
+                action: "cancel",
+                content: "Are you sure you want to cancel this order?",
+              });
+            },
+            color: "destructive",
+          });
+        }
+        break;
+    }
+    return actions;
+  };
+
+  if (query.isLoading || session.isLoading) return <Loader />;
 
   return (
     <>
@@ -34,9 +213,31 @@ const OrderViewPage: FC<{
         ]}
       />
       <div>
-        <div className="text-2xl font-[500]">{query.data?.listing.title}</div>
-        <div className="text-muted-foreground text-sm">
-          {query.data?.listing.description}
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-2xl font-[500]">
+              {query.data?.listing.title}
+            </div>
+            <div className="text-muted-foreground text-sm">
+              {query.data?.listing.description}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            {getActions({
+              userType: session.data?.userType || "buyer",
+              status: query.data?.status || "PENDING",
+            }).map((action, index) => {
+              return (
+                <Button
+                  variant={action.color as any}
+                  key={index}
+                  onClick={() => action.action(query.data?.id || "")}
+                >
+                  {action.icon} {action.label}
+                </Button>
+              );
+            })}
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <Card>
@@ -119,6 +320,77 @@ const OrderViewPage: FC<{
           </Card>
         </div>
       </div>
+      {actionToPerform && (
+        <Dialog
+          open={!!actionToPerform}
+          onOpenChange={() => setActionToPerform(null)}
+        >
+          <DialogContent>
+            <DialogTitle className="flex justify-center flex-col gap-5 items-center">
+              {" "}
+              {actionToPerform.action === "reject" ? (
+                <PackageX size={40} className="text-red-500" />
+              ) : actionToPerform.action === "cancel" ? (
+                <TriangleAlert size={40} className="text-yellow-500" />
+              ) : (
+                <PackageCheck size={40} className="text-green-500" />
+              )}
+              <div>{actionToPerform.content}</div>
+            </DialogTitle>
+            <DialogFooter>
+              <Button
+                variant={"outline"}
+                onClick={() => setActionToPerform(null)}
+              >
+                <CircleX /> Cancel
+              </Button>
+              <LoadingButton
+                variant={
+                  actionToPerform.action == "reject" ? "destructive" : "default"
+                }
+                onClick={() => {
+                  if (actionToPerform?.action === "accept") {
+                    acceptOrderMutation.mutate(actionToPerform.id);
+                  } else if (actionToPerform?.action === "reject") {
+                    rejectOrderMutation.mutate(actionToPerform.id);
+                  } else if (actionToPerform?.action === "cancel") {
+                    calcelOrderMutation.mutate(actionToPerform.id);
+                  } else if (actionToPerform?.action === "complete") {
+                    completeOrderMutation.mutate(actionToPerform.id);
+                  }
+                }}
+                loading={
+                  acceptOrderMutation.isPending ||
+                  rejectOrderMutation.isPending ||
+                  calcelOrderMutation.isPending ||
+                  completeOrderMutation.isPending
+                }
+              >
+                {actionToPerform.action === "accept" && (
+                  <>
+                    <Check /> Accept
+                  </>
+                )}
+                {actionToPerform.action === "reject" && (
+                  <>
+                    <X /> Reject
+                  </>
+                )}
+                {actionToPerform.action === "cancel" && (
+                  <>
+                    <TriangleAlert /> Cancel
+                  </>
+                )}
+                {actionToPerform.action === "complete" && (
+                  <>
+                    <Check /> Completed
+                  </>
+                )}
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

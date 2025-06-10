@@ -54,7 +54,7 @@ import Link from "next/link";
 import { FC, use, useEffect, useState } from "react";
 import { toast } from "sonner";
 
-type T_Actions = "accept" | "reject" | "cancel" | "complete";
+export type T_Actions = "accept" | "reject" | "cancel" | "complete";
 
 const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   const { userId } = use(params);
@@ -178,7 +178,7 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
           });
           actions.push({
             label: "Reject Order",
-            icon: <PackageCheck className="text-destructive" />,
+            icon: <X className="text-destructive" />,
             action: (orderId: string) => {
               setActionToPerform({
                 id: orderId,
@@ -373,7 +373,8 @@ const Orders: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
                 loading={
                   acceptOrderMutation.isPending ||
                   rejectOrderMutation.isPending ||
-                  calcelOrderMutation.isPending
+                  calcelOrderMutation.isPending ||
+                  completeOrderMutation.isPending
                 }
               >
                 {actionToPerform.action === "accept" && (
