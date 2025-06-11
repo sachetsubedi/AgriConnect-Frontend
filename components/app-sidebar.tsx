@@ -1,11 +1,9 @@
 "use client";
 
 import {
-  AudioWaveform,
-  Command,
   Frame,
-  GalleryVerticalEnd,
   LayoutDashboard,
+  Leaf,
   Map,
   Package,
   PieChart,
@@ -31,113 +29,129 @@ export function AppSidebar({
   userId,
   ...props
 }: React.ComponentProps<typeof Sidebar> & { userId: string }) {
-  const data = {
-    user: {
-      name: "shadcn",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
+  const session = useSession();
+
+  // Generate navigation items based on user type
+  const getNavItems = React.useMemo(() => {
+    const navItems = [];
+
+    // Add user-specific navigation items based on role
+    if (session.data?.userType === "seller") {
+      navItems.push(
+        {
+          title: "Dashboard",
+          url: `/p/${userId}/dashboard`,
+          icon: LayoutDashboard,
+          isActive: true,
+          value: "dashboard",
+        },
+        {
+          title: "Products",
+          url: `/p/${userId}/products`,
+          icon: Package,
+          value: "products",
+        },
+        {
+          title: "Orders",
+          url: `/p/${userId}/orders`,
+          icon: ShoppingCart,
+          value: "orders",
+        },
+        {
+          title: "Disease Management",
+          url: `/p/${userId}/desease`,
+          icon: Leaf,
+          value: "disease",
+        }
+      );
+    } else if (session.data?.userType === "buyer") {
+      navItems.push(
+        {
+          title: "Dashboard",
+          url: `/p/${userId}/dashboard`,
+          icon: LayoutDashboard,
+          isActive: true,
+          value: "dashboard",
+        },
+        {
+          title: "Products",
+          url: `/p/${userId}/products`,
+          icon: Package,
+          value: "products",
+        },
+        {
+          title: "Orders",
+          url: `/p/${userId}/orders`,
+          icon: ShoppingCart,
+          value: "orders",
+        }
+      );
+    }
+
+    // Add common navigation items for all users
+    navItems.push({
+      title: "Settings",
+      url: "/settings",
+      icon: Settings2,
+      items: [
+        {
+          title: "General",
+          url: "#",
+        },
+        {
+          title: "Team",
+          url: "#",
+        },
+        {
+          title: "Billing",
+          url: "#",
+        },
+      ],
+    });
+
+    return navItems;
+  }, [session.data?.userType, userId]);
+
+  const projects = [
+    {
+      name: "Design Engineering",
+      url: "#",
+      icon: Frame,
     },
-    teams: [
-      {
-        name: "Acme Inc",
-        logo: GalleryVerticalEnd,
-        plan: "Enterprise",
-      },
-      {
-        name: "Acme Corp.",
-        logo: AudioWaveform,
-        plan: "Startup",
-      },
-      {
-        name: "Evil Corp.",
-        logo: Command,
-        plan: "Free",
-      },
-    ],
-    navMain: [
-      {
-        title: "Dashboard",
-        url: `/p/${userId}/dashboard`,
-        icon: LayoutDashboard,
-        isActive: true,
-        value: "dashboard",
-      },
-      {
-        title: "Products",
-        url: `/p/${userId}/products`,
-        icon: Package,
-        value: "products",
-      },
-      {
-        title: "Orders",
-        url: `/p/${userId}/orders`,
-        icon: ShoppingCart,
-        value: "orders",
-      },
-
-      {
-        title: "Settings",
-        url: "/settings",
-        icon: Settings2,
-
-        items: [
-          {
-            title: "General",
-            url: "#",
-          },
-          {
-            title: "Team",
-            url: "#",
-          },
-          {
-            title: "Billing",
-            url: "#",
-          },
-        ],
-      },
-    ],
-    projects: [
-      {
-        name: "Design Engineering",
-        url: "#",
-        icon: Frame,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: PieChart,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: Map,
-      },
-    ],
-  };
+    {
+      name: "Sales & Marketing",
+      url: "#",
+      icon: PieChart,
+    },
+    {
+      name: "Travel",
+      url: "#",
+      icon: Map,
+    },
+  ];
 
   const [user, setUser] = React.useState({ name: "", email: "", avatar: "" });
 
-  const userData = useSession();
-
   React.useEffect(() => {
-    if (userData.isSuccess) {
+    if (session.isSuccess) {
       setUser({
-        name: userData.data?.name || "",
-        email: userData.data?.email || "",
-        avatar: userData.data?.avatar || "",
+        name: session.data?.name || "",
+        email: session.data?.email || "",
+        avatar: session.data?.avatar || "",
       });
     }
-  }, [userData.isSuccess]);
+  }, [session.isSuccess, session.data]);
+
+  if (session.isLoading || !session.data) return null;
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="flex items-center justify-between">
-        {/* <TeamSwitcher teams={data.teams} /> */}
         <Image src={"/logo.png"} width={150} height={100} alt="Logo" />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain items={getNavItems} />
+        <NavProjects projects={projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />
