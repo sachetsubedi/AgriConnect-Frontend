@@ -59,7 +59,7 @@ export function AppSidebar({
         },
         {
           title: "Disease Management",
-          url: `/p/${userId}/desease`,
+          url: `/p/${userId}/disease`,
           icon: Leaf,
           value: "disease",
         }
