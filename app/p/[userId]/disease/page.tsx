@@ -58,7 +58,7 @@ export type DiseaseTreatment = {
   };
 };
 
-const page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
+const Page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   const { userId } = use(params);
   const [files, setFiles] = React.useState<File[]>([]);
   const [step, setStep] = useState(1);
@@ -275,4 +275,4 @@ const page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   );
 };
 
-export default page;
+export default Page;
