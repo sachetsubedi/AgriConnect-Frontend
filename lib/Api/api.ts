@@ -1,5 +1,6 @@
 import { T_UserRegister } from "@/app/(auth)/register/page";
 import { DiseaseTreatment } from "@/app/p/[userId]/disease/page";
+import { T_NotificationType } from "@/components/notification-sheet";
 import { AxiosResponse } from "axios";
 import { axiosInstance } from "../providers/axiosInstance";
 
@@ -155,5 +156,22 @@ export const API_CompleteOrder = async (orderId: string) => {
 export const API_DiseaseAnalyze = async (data: FormData) => {
   const response: AxiosResponse<{ message: string; data: DiseaseTreatment }> =
     await axiosInstance.post(`/disease/analyze`, data);
+  return response.data;
+};
+
+export type T_Notification = {
+  id: string;
+  title: string;
+  message: string;
+  userId: string;
+  link: string;
+  isRead: boolean;
+  createdAt: string;
+  type: T_NotificationType;
+};
+
+export const API_GetAllNotifications = async () => {
+  const response: AxiosResponse<{ message: string; data: T_Notification[] }> =
+    await axiosInstance.get(`/notification`);
   return response.data;
 };
