@@ -21,7 +21,7 @@ const ProductCard: FC<{ product: T_Product }> = ({ product }) => {
             {product.unit}
           </div>
         </div>
-        <div className="text-sm text-slate-600 break-words">
+        <div className="text-sm text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap">
           {product.description}
         </div>
       </CardContent>
