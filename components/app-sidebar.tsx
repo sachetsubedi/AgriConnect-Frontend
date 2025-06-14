@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BadgeDollarSign,
   Frame,
   LayoutDashboard,
   Leaf,
@@ -56,6 +57,12 @@ export function AppSidebar({
           url: `/p/${userId}/orders`,
           icon: ShoppingCart,
           value: "orders",
+        },
+        {
+          title: "Auctions",
+          url: `/p/${userId}/auction`,
+          icon: BadgeDollarSign,
+          value: "auction",
         },
         {
           title: "Disease Management",

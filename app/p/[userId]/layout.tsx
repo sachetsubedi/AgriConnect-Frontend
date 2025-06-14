@@ -30,9 +30,7 @@ export default function UserLayout({
 
             <NotificationSheet />
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 px-16">
-            {children}
-          </div>
+          <div className="flex flex-1 flex-col p-4 pt-0 px-16">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </div>
