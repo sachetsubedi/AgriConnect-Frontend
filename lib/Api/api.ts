@@ -45,6 +45,14 @@ export type T_ListingAttachment = {
   updatedAt: string;
 };
 
+export type T_AuctionAttachment = {
+  id: string;
+  attachment: string;
+  listingId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type T_Product = {
   id: string;
   title: string;
@@ -173,5 +181,40 @@ export type T_Notification = {
 export const API_GetAllNotifications = async () => {
   const response: AxiosResponse<{ message: string; data: T_Notification[] }> =
     await axiosInstance.get(`/notification`);
+  return response.data;
+};
+
+export const API_CreateAuction = async (data: FormData) => {
+  const response: AxiosResponse<{ message: string; data: any }> =
+    await axiosInstance.post(`/auction`, data);
+  return response.data;
+};
+
+export type T_Auction = {
+  id: string;
+  title: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  startingPrice: number;
+  currentPrice: number;
+  endDate: string;
+  startDate: string;
+  sellerId: string;
+  seller: T_User;
+  AuctionAttachments: T_AuctionAttachment[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const API_GetAllAuctions = async (searchQuery: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Auction[] }> =
+    await axiosInstance.get(`/auction?search=${searchQuery}`);
+  return response.data;
+};
+
+export const API_GetAuction = async (auctionId: string) => {
+  const response: AxiosResponse<{ message: string; data: T_Auction }> =
+    await axiosInstance.get(`/auction/${auctionId}`);
   return response.data;
 };

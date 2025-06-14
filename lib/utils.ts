@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import { clsx, type ClassValue } from "clsx";
-import { format } from "date-fns";
+import { format, isAfter, isBefore, isToday } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -37,3 +37,13 @@ export function areAllFilesImages(fileList: FileList) {
 export const formatDate = (date: string | Date) => {
   return format(date, "dd MMM, yyyy");
 };
+
+export function isTodayOrAfter(dateToCheck: Date): boolean {
+  const now = new Date();
+  return isToday(dateToCheck) || isAfter(dateToCheck, now);
+}
+
+export function isTodayOrBefore(dateToCheck: Date | string): boolean {
+  const now = new Date();
+  return isToday(dateToCheck) || isBefore(dateToCheck, now);
+}
