@@ -190,19 +190,29 @@ export const API_CreateAuction = async (data: FormData) => {
   return response.data;
 };
 
+export type T_Bid = {
+  bidderId: string;
+  bidder: T_User;
+  auctionId: string;
+  bidAmount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type T_Auction = {
   id: string;
   title: string;
   description: string;
   quantity: number;
   unit: string;
-  startingPrice: number;
+  startPrice: number;
   currentPrice: number;
   endDate: string;
   startDate: string;
   sellerId: string;
   seller: T_User;
   AuctionAttachments: T_AuctionAttachment[];
+  highestBid: T_Bid | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -216,5 +226,14 @@ export const API_GetAllAuctions = async (searchQuery: string) => {
 export const API_GetAuction = async (auctionId: string) => {
   const response: AxiosResponse<{ message: string; data: T_Auction }> =
     await axiosInstance.get(`/auction/${auctionId}`);
+  return response.data;
+};
+
+export const API_AddBidToAuction = async (data: {
+  auctionId: string;
+  bidAmount: number;
+}) => {
+  const response: AxiosResponse<{ message: string; data: any }> =
+    await axiosInstance.post(`/bid/${data.auctionId}`, data);
   return response.data;
 };

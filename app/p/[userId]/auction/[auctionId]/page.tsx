@@ -2,6 +2,7 @@
 import CustomBreadcrumbs from "@/components/CustomBreadcrumbs";
 import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
+import Required from "@/components/required";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,11 +30,21 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSession } from "@/hooks/useSession";
-import { API_GetAuction } from "@/lib/Api/api";
+import { API_AddBidToAuction, API_GetAuction } from "@/lib/Api/api";
 import { formatDate, isTodayOrBefore } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { BadgeDollarSign, Clock, PencilRuler, X } from "lucide-react";
 import { FC, use, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const bidSchema = z.object({
+  amount: z.coerce.number().min(1, "Bid amount must be greater than 0"),
+  highestBid: z.number().optional(),
+});
 
 const AuctionView: FC<{
   params: Promise<{ userId: string; auctionId: string }>;
@@ -48,12 +59,40 @@ const AuctionView: FC<{
     },
   });
 
+  const bidForm = useForm({
+    defaultValues: {
+      amount: 0,
+      highestBid: 0,
+    },
+    resolver: zodResolver(bidSchema),
+  });
+
   useEffect(() => {
-    if (!query.isSuccess) return;
+    if (!query.isSuccess || !query.data) return;
     if (query.data?.data) {
       setheader(query.data.data.title + " - Auction");
+      bidForm.setValue("amount", Number(query.data.data.startPrice));
+      bidForm.setValue("highestBid", query.data.data.startPrice);
+      if (query.data.data.highestBid) {
+        bidForm.setValue("highestBid", query.data.data.highestBid.bidAmount);
+        bidForm.setValue("amount", query.data.data.highestBid.bidAmount);
+      }
     }
   }, [query.data]);
+
+  const addBidMutation = useMutation({
+    mutationFn: API_AddBidToAuction,
+    onSuccess: (data) => {
+      setPlaceBidOpen(false);
+      query.refetch();
+      return toast.success("Bid placed successfully");
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      return toast.error(
+        error?.response?.data?.message || "Failed to place bid"
+      );
+    },
+  });
 
   const session = useSession();
 
@@ -120,19 +159,51 @@ const AuctionView: FC<{
                     <BadgeDollarSign /> Add Bid
                   </Button>
                 </DialogTrigger>
+
                 <DialogContent>
                   <DialogTitle className="font-bold text-center">
                     Place a bid
                   </DialogTitle>
-                  <Label>Price</Label>
-                  <Input />
+                  <div className="font-bold text-sm flex gap-5">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <BadgeDollarSign size={15} className="text-primary" />{" "}
+                      Current Highest Bid:{" "}
+                    </span>
+                    Rs {bidForm.getValues("highestBid")}
+                  </div>
+                  <Label>
+                    Price <Required />{" "}
+                  </Label>
+                  <Input {...bidForm.register("amount")} type="number" />
+                  <Label className="text-destructive font-bold">
+                    {bidForm.formState.errors.amount?.message}{" "}
+                  </Label>
                   <DialogFooter>
-                    <DialogClose>
+                    <DialogClose asChild>
                       <Button type="button" variant={"outline"}>
                         <X /> Cancel
                       </Button>
                     </DialogClose>
-                    <LoadingButton>
+                    <LoadingButton
+                      loading={addBidMutation.isPending}
+                      type="submit"
+                      onClick={() => {
+                        const { amount, highestBid } = bidForm.watch();
+                        bidForm.clearErrors("amount");
+                        if (Number(amount) <= Number(highestBid)) {
+                          return bidForm.setError("amount", {
+                            message:
+                              "Bid amount must be greater than the current highest bid",
+                            type: "validate",
+                          });
+                        }
+                        // console.log(bidForm.getValues());
+                        addBidMutation.mutate({
+                          auctionId: auctionId,
+                          bidAmount: Number(amount),
+                        });
+                      }}
+                    >
                       <BadgeDollarSign /> Place Bid
                     </LoadingButton>
                   </DialogFooter>
