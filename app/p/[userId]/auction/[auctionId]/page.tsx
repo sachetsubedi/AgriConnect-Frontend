@@ -6,6 +6,7 @@ import Required from "@/components/required";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -30,12 +31,24 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useSession } from "@/hooks/useSession";
-import { API_AddBidToAuction, API_GetAuction } from "@/lib/Api/api";
+import {
+  API_AddBidToAuction,
+  API_GetAuction,
+  API_IncreaseBid,
+} from "@/lib/Api/api";
 import { formatDate, isTodayOrBefore } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { BadgeDollarSign, Clock, PencilRuler, X } from "lucide-react";
+import {
+  Award,
+  BadgeDollarSign,
+  Bird,
+  Clock,
+  PencilRuler,
+  TrendingUp,
+  X,
+} from "lucide-react";
 import { FC, use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -77,6 +90,9 @@ const AuctionView: FC<{
         bidForm.setValue("highestBid", query.data.data.highestBid.bidAmount);
         bidForm.setValue("amount", query.data.data.highestBid.bidAmount);
       }
+      if (query.data.data.bidByUser) {
+        bidForm.setValue("amount", query.data.data.bidByUser.bidAmount);
+      }
     }
   }, [query.data]);
 
@@ -90,6 +106,20 @@ const AuctionView: FC<{
     onError: (error: AxiosError<{ message: string }>) => {
       return toast.error(
         error?.response?.data?.message || "Failed to place bid"
+      );
+    },
+  });
+
+  const increaseBidMutation = useMutation({
+    mutationFn: API_IncreaseBid,
+    onSuccess: (data) => {
+      setPlaceBidOpen(false);
+      query.refetch();
+      return toast.success("Bid updated successfully");
+    },
+    onError: (error: AxiosError<{ message: string }>) => {
+      return toast.error(
+        error?.response?.data?.message || "Failed to increase bid"
       );
     },
   });
@@ -155,24 +185,46 @@ const AuctionView: FC<{
             <>
               <Dialog open={placeBidOpen} onOpenChange={setPlaceBidOpen}>
                 <DialogTrigger asChild>
-                  <Button>
-                    <BadgeDollarSign /> Add Bid
-                  </Button>
+                  {query.data?.data.bidByUser ? (
+                    <Button>
+                      <TrendingUp />
+                      Increase Bid
+                    </Button>
+                  ) : (
+                    <Button>
+                      <BadgeDollarSign /> Add Bid
+                    </Button>
+                  )}
                 </DialogTrigger>
 
                 <DialogContent>
                   <DialogTitle className="font-bold text-center">
-                    Place a bid
+                    {query.data?.data.bidByUser
+                      ? "Increase Bid"
+                      : "Place a Bid"}{" "}
                   </DialogTitle>
-                  <div className="font-bold text-sm flex gap-5">
+                  <div className="font-bold text-sm flex gap-2">
                     <span className="text-muted-foreground flex items-center gap-1">
                       <BadgeDollarSign size={15} className="text-primary" />{" "}
                       Current Highest Bid:{" "}
                     </span>
                     Rs {bidForm.getValues("highestBid")}
                   </div>
+
+                  {query.data?.data.bidByUser && (
+                    <div className="font-bold text-sm flex gap-2">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <BadgeDollarSign
+                          size={15}
+                          className="text-orange-500"
+                        />{" "}
+                        Your Current Bid:{" "}
+                      </span>
+                      Rs {query.data.data.bidByUser.bidAmount}
+                    </div>
+                  )}
                   <Label>
-                    Price <Required />{" "}
+                    Bid Amount <Required />{" "}
                   </Label>
                   <Input {...bidForm.register("amount")} type="number" />
                   <Label className="text-destructive font-bold">
@@ -185,7 +237,10 @@ const AuctionView: FC<{
                       </Button>
                     </DialogClose>
                     <LoadingButton
-                      loading={addBidMutation.isPending}
+                      loading={
+                        addBidMutation.isPending ||
+                        increaseBidMutation.isPending
+                      }
                       type="submit"
                       onClick={() => {
                         const { amount, highestBid } = bidForm.watch();
@@ -197,14 +252,21 @@ const AuctionView: FC<{
                             type: "validate",
                           });
                         }
-                        // console.log(bidForm.getValues());
-                        addBidMutation.mutate({
-                          auctionId: auctionId,
-                          bidAmount: Number(amount),
-                        });
+                        if (query.data?.data.bidByUser) {
+                          increaseBidMutation.mutate({
+                            bidId: query.data?.data.bidByUser?.id || "",
+                            amount: amount,
+                          });
+                        } else {
+                          addBidMutation.mutate({
+                            auctionId: auctionId,
+                            bidAmount: Number(amount),
+                          });
+                        }
                       }}
                     >
-                      <BadgeDollarSign /> Place Bid
+                      <BadgeDollarSign />{" "}
+                      {query.data?.data.bidByUser ? "Increase" : "Place Bid"}{" "}
                     </LoadingButton>
                   </DialogFooter>
                 </DialogContent>
@@ -276,6 +338,44 @@ const AuctionView: FC<{
               </span>
             </div>
           </div>
+        </div>
+      </div>
+      <div className="mt-10 mb-5 font-bold text-xl">Auction Bids</div>
+      <div>
+        {query.data?.data.auctionBids?.length === 0 && (
+          <div className="text-muted-foreground flex gap-2">
+            <Bird /> No bids placed yet
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-3">
+          {query.data?.data.auctionBids?.map((bid, i) => {
+            return (
+              <Card key={i} className="w-fit relative">
+                <CardContent className="flex justify-center flex-col gap-2 w-fit items-center p-3">
+                  <BadgeDollarSign size={50} className="text-primary" />
+                  <div className="text-center">
+                    <div className="font-bold text-lg">Rs {bid.bidAmount} </div>
+                    <div className="text-muted-foreground text-sm">
+                      {bid.bidder.name}
+                    </div>
+                  </div>
+                  {query.data.data.highestBid &&
+                    bid.id === query.data.data.highestBid.id && (
+                      <div>
+                        <Award className="text-green-500 absolute top-2 right-2" />
+                      </div>
+                    )}
+
+                  {bid.bidderId === session.data?.id && (
+                    <div className="text-xs bg-orange-500 rounded-full text-white px-2 py-[2px] absolute left-2 top-2">
+                      You
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </>
