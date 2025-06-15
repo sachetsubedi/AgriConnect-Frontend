@@ -191,6 +191,7 @@ export const API_CreateAuction = async (data: FormData) => {
 };
 
 export type T_Bid = {
+  id: string;
   bidderId: string;
   bidder: T_User;
   auctionId: string;
@@ -215,6 +216,8 @@ export type T_Auction = {
   highestBid: T_Bid | null;
   createdAt: string;
   updatedAt: string;
+  auctionBids?: T_Bid[] | null;
+  bidByUser?: T_Bid | null;
 };
 
 export const API_GetAllAuctions = async (searchQuery: string) => {
@@ -235,5 +238,14 @@ export const API_AddBidToAuction = async (data: {
 }) => {
   const response: AxiosResponse<{ message: string; data: any }> =
     await axiosInstance.post(`/bid/${data.auctionId}`, data);
+  return response.data;
+};
+
+export const API_IncreaseBid = async (data: {
+  bidId: string;
+  amount: number;
+}) => {
+  const response: AxiosResponse<{ message: string; data: any }> =
+    await axiosInstance.post(`/bid/${data.bidId}/increase`, data);
   return response.data;
 };
