@@ -16,7 +16,6 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
               toast.error("Unauthorized");
               router.push("/login");
             }
-            console.log(error.status);
           }
           return false;
         },
@@ -27,7 +26,6 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
             if (error.status == 401) {
               router.push("/login");
             }
-            console.log(error.status);
           }
           return false;
         },
@@ -36,7 +34,7 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   });
   return (
     <QueryClientProvider client={client}>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-right" closeButton />
       {children}
     </QueryClientProvider>
   );
