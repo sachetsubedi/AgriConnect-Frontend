@@ -14,7 +14,7 @@ const MapContents = dynamic(() => import("./MapContents"), { ssr: false });
 
 const Map: FC<{ form: UseFormReturn<any> }> = ({ form }) => {
   return (
-    <div className="h-[55vh] w-full ">
+    <div className="h-[55vh] w-full">
       <MapContainer
         className="w-full h-full z-10"
         center={[27.7103, 85.3222]}

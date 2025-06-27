@@ -10,6 +10,7 @@ import {
   PieChart,
   Settings2,
   ShoppingCart,
+  Sprout,
 } from "lucide-react";
 import * as React from "react";
 
@@ -69,6 +70,12 @@ export function AppSidebar({
           url: `/p/${userId}/disease`,
           icon: Leaf,
           value: "disease",
+        },
+        {
+          title: "Crop Recommendation",
+          url: `/p/${userId}/crop-recom`,
+          icon: Sprout,
+          value: "crop-recom",
         }
       );
     } else if (session.data?.userType === "buyer") {

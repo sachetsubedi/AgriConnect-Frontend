@@ -1,7 +1,7 @@
 import { T_UserRegister } from "@/app/(auth)/register/page";
 import { DiseaseTreatment } from "@/app/p/[userId]/disease/page";
 import { T_NotificationType } from "@/components/notification-sheet";
-import { AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { axiosInstance } from "../providers/axiosInstance";
 
 export type T_User = {
@@ -247,5 +247,22 @@ export const API_IncreaseBid = async (data: {
 }) => {
   const response: AxiosResponse<{ message: string; data: any }> =
     await axiosInstance.post(`/bid/${data.bidId}/increase`, data);
+  return response.data;
+};
+
+export type T_RecommCropType = {
+  name: String;
+  probability: Number;
+  process: {
+    harvest: String;
+    planting: String;
+    process: String;
+  };
+};
+
+export const API_GetRecommendation = async (data: { location: any }) => {
+  const response: AxiosResponse<{
+    crop: T_RecommCropType[];
+  }> = await axios.post(`http://localhost:5000/recommend-crop`, data);
   return response.data;
 };

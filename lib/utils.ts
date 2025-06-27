@@ -47,3 +47,7 @@ export function isTodayOrBefore(dateToCheck: Date | string): boolean {
   const now = new Date();
   return isToday(dateToCheck) || isBefore(dateToCheck, now);
 }
+
+export const capitalize = (str: string) => {
+  return str.trim().charAt(0).toUpperCase() + str.trim().slice(1);
+};
