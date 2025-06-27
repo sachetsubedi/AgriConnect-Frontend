@@ -23,7 +23,7 @@ const NotificationSheet = () => {
       <SheetTrigger className="pr-5">
         <Bell />
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="z-50">
         <SheetTitle></SheetTitle>
         <div>
           <SheetTitle className="flex items-center justify-between">
