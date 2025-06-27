@@ -251,12 +251,12 @@ export const API_IncreaseBid = async (data: {
 };
 
 export type T_RecommCropType = {
-  name: String;
-  probability: Number;
+  name: string;
+  probability: number;
   process: {
-    harvest: String;
-    planting: String;
-    process: String;
+    harvest: string;
+    planting: string;
+    process: string;
   };
 };
 
