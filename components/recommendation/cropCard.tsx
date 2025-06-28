@@ -1,61 +1,67 @@
 import { T_RecommCropType } from "@/lib/Api/api";
-import { capitalize } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
-import { FC, useState } from "react";
-import { Button } from "../ui/button";
+import { FC } from "react";
 import { Card, CardContent, CardTitle } from "../ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Separator } from "../ui/separator";
 
 const RecomCropCard: FC<{ crop: T_RecommCropType }> = ({ crop }) => {
-  const [expanded, setExpanded] = useState(false);
   return (
-    <Card
-      className="hover:scale-[1.01] transition-all ease-in-out cursor-pointer"
-      onClick={() => setExpanded(!expanded)}
-    >
-      <CardContent className="p-6 flex justify-between ">
-        <div>
-          <CardTitle className="capitalize text-xl">
-            {" "}
-            <Button variant={"outline"} className="p-1 h-6 w-6">
-              <ChevronDown
-                className={` transition-all ease-in-out ${
-                  expanded ? "rotate-180" : ""
-                }  `}
-              />{" "}
-            </Button>{" "}
-            {crop.name}{" "}
-          </CardTitle>
-          {expanded && (
-            <>
-              <div className="mt-5">
-                <div className="font-bold">Plantation process</div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Card className="hover:scale-[1.01] transition-all ease-in-out cursor-pointer w-[350px]">
+          <CardContent className="p-0 flex flex-col justify-between">
+            <div>
+              <img
+                src={crop.image}
+                alt="image"
+                className="w-full h-[200px] rounded-md"
+              />
+            </div>
+            <div className="p-2">
+              <CardTitle className="capitalize text-xl">{crop.name}</CardTitle>
+              <div className="text-sm font-bold text-muted-foreground">
+                {crop.process.planting} - {crop.process.harvest}
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </DialogTrigger>
 
-              <div>
-                {crop.process.process.split(";").map((step, index) => {
-                  return (
-                    <li key={index} className="text-sm">
-                      {capitalize(step)}.{" "}
-                    </li>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
+      <DialogContent className="overflow-y-scroll max-h-[80vh]">
+        <div className="flex flex-col gap-2 mt-5">
+          <img
+            src={crop.image}
+            alt="image"
+            className="w-full h-[300px] rounded-md"
+          />
+          <DialogTitle className="text-lg font-bold capitalize">
+            {crop.name}
+          </DialogTitle>
+          <div className="text-sm font-bold flex">
+            <div className="w-[80px] text-muted-foreground">Plant at</div>
+            {crop.process.planting}
+          </div>
+          <div className="text-sm font-bold flex">
+            <div className="w-[80px] text-muted-foreground">Harvest at</div>
+            {crop.process.harvest}
+          </div>
 
-        <div className="text-sm">
-          <div className="flex gap-5 font-[500]">
-            <div className="text-muted-foreground w-24">Plantation on</div>
-            <div>{crop.process.planting}</div>
-          </div>
-          <div className="flex gap-5 font-[500]">
-            <div className="text-muted-foreground w-24">Harvest on</div>
-            <div>{crop.process.harvest}</div>
-          </div>
+          <Separator className="my-2" />
+
+          <div className="text-black font-bold">Process</div>
+          <ol className="text-sm list-decimal list-inside flex flex-col gap-3">
+            {crop.process.process.split(";").map((p, i) => (
+              <li key={i}>{p}</li>
+            ))}
+          </ol>
         </div>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
 
