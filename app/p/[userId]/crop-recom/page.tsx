@@ -83,7 +83,7 @@ const Page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
             </div>
           )}
           {recommendMutation.isSuccess && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-5">
               {recommendMutation.data.crop.map((crop, index) => {
                 return <RecomCropCard crop={crop} key={index}></RecomCropCard>;
               })}
