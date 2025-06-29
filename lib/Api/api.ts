@@ -116,9 +116,27 @@ export type T_Order = {
   status: "PENDING" | "COMPLETED" | "REJECTED" | "ACCEPTED";
 };
 
+export type T_AuctionOrder = {
+  id: string;
+  orderNumber: string;
+  auctionId: string;
+  auction: T_Auction;
+  buyerId: string;
+  status: "PENDING" | "COMPLETED" | "REJECTED" | "ACCEPTED";
+};
+
 export const API_GetAllUserOrders = async (search?: string) => {
   const response: AxiosResponse<{ message: string; data: T_Order[] }> =
-    await axiosInstance.get(`/order?search=${search || ""}`);
+    await axiosInstance.get(`/order?search=${search || ""}&type=retail`);
+  return response.data;
+};
+
+export const API_GetAllUserAuctionOrders = async (
+  type: string,
+  search?: string
+) => {
+  const response: AxiosResponse<{ message: string; data: T_AuctionOrder[] }> =
+    await axiosInstance.get(`/auction-order?search=${search || ""}`);
   return response.data;
 };
 
@@ -207,7 +225,7 @@ export type T_Auction = {
   quantity: number;
   unit: string;
   startPrice: number;
-  currentPrice: number;
+  currentBid: number;
   endDate: string;
   startDate: string;
   sellerId: string;
