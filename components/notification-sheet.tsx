@@ -67,7 +67,8 @@ export type T_NotificationType =
   | "order.completed"
   | "order.cancelled"
   | "order.created"
-  | "order.created";
+  | "order.created"
+  | "auction.won";
 
 const getNotificationIcon = (type: T_NotificationType) => {
   switch (type) {
@@ -96,6 +97,20 @@ const getNotificationIcon = (type: T_NotificationType) => {
         </div>
       );
     case "order.created":
+      return (
+        <div className="bg-purple-500 h-full rounded-md  text-white">
+          <Bell className="h-10 w-10  " />
+        </div>
+      );
+
+    case "auction.won":
+      return (
+        <div className="bg-green-500 h-full rounded-md  text-white">
+          <CheckCheck className="h-10 w-10  " />
+        </div>
+      );
+
+    default:
       return (
         <div className="bg-purple-500 h-full rounded-md  text-white">
           <Bell className="h-10 w-10  " />
