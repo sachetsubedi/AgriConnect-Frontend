@@ -70,7 +70,7 @@ export type T_NotificationType =
   | "order.created"
   | "auction.won";
 
-const getNotificationIcon = (type: T_NotificationType) => {
+export const getNotificationIcon = (type: T_NotificationType) => {
   switch (type) {
     case "order.rejected":
       return (
