@@ -289,7 +289,10 @@ export const API_GetRecommendation = async (data: { location: any }) => {
 export const API_GetDashboardData = async () => {
   const response: AxiosResponse<{
     message: string;
-    data: { title: string; value: number }[];
+    data: {
+      cardsData: { title: string; value: number }[];
+      salesData: { month: string; sales: number }[];
+    };
   }> = await axiosInstance.get(`/dashboard`);
   return response.data;
 };

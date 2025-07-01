@@ -1,6 +1,4 @@
 "use client";
-import { API_GetDashboardData } from "@/lib/Api/api";
-import { useQuery } from "@tanstack/react-query";
 import {
   Package,
   PackageCheck,
@@ -8,7 +6,7 @@ import {
   PackageSearch,
   User,
 } from "lucide-react";
-import Loader from "../Loader";
+import { FC } from "react";
 import { Card, CardContent, CardTitle } from "../ui/card";
 
 const samnpleData = [
@@ -34,16 +32,12 @@ const samnpleData = [
   },
 ];
 
-const CountCards = () => {
-  const query = useQuery({
-    queryKey: ["dashboardCardData"],
-    queryFn: API_GetDashboardData,
-  });
-
-  if (query.isLoading) return <Loader />;
+const CountCards: FC<{
+  data: { title: string; value: string | number }[];
+}> = ({ data }) => {
   return (
-    <div className="col-span-2 grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {query.data?.data.map((item, index) => {
+    <div className="col-span-2 lg:col-span-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {data.map((item, index) => {
         return (
           <Card key={index} className="">
             <CardContent className="p-6">
