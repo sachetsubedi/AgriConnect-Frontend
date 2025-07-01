@@ -32,7 +32,7 @@ export const ChartLineDefault: FC<{
 }> = ({ title, data }) => {
   console.log(data);
   return (
-    <Card>
+    <Card className="col-span-2 lg:col-span-1">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>January - June 2025</CardDescription>
