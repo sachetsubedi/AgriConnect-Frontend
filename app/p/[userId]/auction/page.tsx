@@ -45,6 +45,12 @@ const AuctionList: FC<{ params: Promise<{ userId: string }> }> = ({
       />
 
       <div className="mt-5 flex flex-wrap gap-8">
+        {query.data?.data.length === 0 && (
+          <div className="w-full text-center font-bold text-muted-foreground mt-6">
+            No auctions found.
+          </div>
+        )}
+
         {query.data?.data.map((auction, index) => {
           return (
             <Link href={getPath(userId, ["auction", auction.id])} key={index}>
