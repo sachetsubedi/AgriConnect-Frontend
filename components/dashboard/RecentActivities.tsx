@@ -8,11 +8,10 @@ const RecentActivities = () => {
   const query = useQuery({
     queryKey: ["notifications"],
     queryFn: API_GetAllNotifications,
-    refetchInterval: 10000,
   });
   if (query.isLoading) return null;
   return (
-    <Card>
+    <Card className="col-span-2 lg:col-span-1">
       <CardContent className="p-6">
         <CardTitle className="text-muted-foreground mb-3">
           Recent Notifications
