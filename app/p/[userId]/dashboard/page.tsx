@@ -36,7 +36,7 @@ const Page = () => {
           <ChartLineDefault
             title={session.data?.userType === "seller" ? "Sales" : "Expenses"}
             data={query.data.data.salesData}
-            userType={session.data?.userType!}
+            userType={session.data?.userType || "buyer"}
           />
         )}
       </div>
