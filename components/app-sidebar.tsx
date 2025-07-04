@@ -24,6 +24,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useSession } from "@/hooks/useSession";
+import { getPath } from "@/lib/utils";
 import Image from "next/image";
 
 export function AppSidebar({
@@ -110,7 +111,7 @@ export function AppSidebar({
     // Add common navigation items for all users
     navItems.push({
       title: "Settings",
-      url: "/settings",
+      url: getPath(userId, ["setting"]),
       icon: Settings2,
     });
 
