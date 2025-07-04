@@ -29,6 +29,7 @@ const chartConfig = {
 export const ChartLineDefault: FC<{
   title: string;
   data: { month: string; sales: number }[];
+  userType: "seller" | "buyer";
 }> = ({ title, data }) => {
   return (
     <Card className="col-span-2 lg:col-span-1">

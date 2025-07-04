@@ -13,7 +13,7 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
         retry(failureCount, error) {
           if (error instanceof AxiosError) {
             if (error.status == 401) {
-              toast.error("Unauthorized");
+              toast.error("Session expired, please log in");
               router.push("/login");
             }
           }

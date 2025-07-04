@@ -33,7 +33,11 @@ const Page = () => {
         )}
 
         {query.data?.data.salesData && (
-          <ChartLineDefault title="Sales" data={query.data.data.salesData} />
+          <ChartLineDefault
+            title={session.data?.userType === "seller" ? "Sales" : "Expenses"}
+            data={query.data.data.salesData}
+            userType={session.data?.userType!}
+          />
         )}
       </div>
     </div>
