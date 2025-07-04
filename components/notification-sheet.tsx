@@ -31,6 +31,11 @@ const NotificationSheet = () => {
           </SheetTitle>
           <Separator className="my-2" />
           <div>
+            {query.data?.data.length === 0 && (
+              <div className="text-muted-foreground text-sm">
+                No recent notifications
+              </div>
+            )}
             {query.data?.data.map((notification) => (
               <Link
                 href={notification.link}

@@ -10,6 +10,7 @@ const RecentActivities = () => {
     queryFn: API_GetAllNotifications,
   });
   if (query.isLoading) return null;
+
   return (
     <Card className="col-span-2 lg:col-span-1">
       <CardContent className="p-6">
@@ -17,6 +18,11 @@ const RecentActivities = () => {
           Recent Notifications
         </CardTitle>
         <div className="flex gap-2 flex-col">
+          {query.data?.data.length === 0 && (
+            <div className="text-muted-foreground text-sm">
+              No recent notifications
+            </div>
+          )}
           {query.data?.data.slice(0, 3).map((n, i) => {
             return (
               <div key={i} className="flex  gap-2">
