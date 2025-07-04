@@ -135,7 +135,12 @@ export function AppSidebar({
     },
   ];
 
-  const [user, setUser] = React.useState({ name: "", email: "", avatar: "" });
+  const [user, setUser] = React.useState({
+    name: "",
+    email: "",
+    avatar: "",
+    id: "",
+  });
 
   React.useEffect(() => {
     if (session.isSuccess) {
@@ -143,6 +148,7 @@ export function AppSidebar({
         name: session.data?.name || "",
         email: session.data?.email || "",
         avatar: session.data?.avatar || "",
+        id: session.data?.id || "",
       });
     }
   }, [session.isSuccess, session.data]);
