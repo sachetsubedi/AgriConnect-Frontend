@@ -113,6 +113,7 @@ export function AppSidebar({
       title: "Settings",
       url: getPath(userId, ["setting"]),
       icon: Settings2,
+      value: "setting",
     });
 
     return navItems;

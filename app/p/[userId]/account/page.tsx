@@ -1,5 +1,7 @@
 "use client";
+import CustomBreadcrumbs from "@/components/CustomBreadcrumbs";
 import Loader from "@/components/Loader";
+import PageHeader from "@/components/PageHeader";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
@@ -15,7 +17,13 @@ const Page = () => {
 
   return (
     <div>
-      <h1 className="font-bold text-xl">Account</h1>
+      <PageHeader title="Account" />
+      <CustomBreadcrumbs
+        items={[
+          { title: "Account", link: `/p/${session.data.id}/account` },
+          { title: "View" },
+        ]}
+      />
       <Card className="mt-5">
         <CardContent className="p-6">
           <CardTitle className="flex justify-between">
