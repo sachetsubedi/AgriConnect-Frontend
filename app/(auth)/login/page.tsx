@@ -402,8 +402,8 @@ const LoginPage = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.2 }}
           >
-            Join Nepal's largest agricultural marketplace and transform your
-            farming business.
+            Join Nepal&apos;s largest agricultural marketplace and transform
+            your farming business.
           </motion.p>
         </motion.div>
 

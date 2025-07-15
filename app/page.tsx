@@ -397,7 +397,7 @@ export default function Home() {
                 Revolutionizing Agriculture in Nepal
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                AgriConnect is Nepal's first comprehensive agricultural
+                AgriConnect is Nepal&apos;s first comprehensive agricultural
                 marketplace that bridges the gap between farmers and buyers
                 while providing cutting-edge tools for modern farming.
               </p>
@@ -497,7 +497,7 @@ export default function Home() {
                       ))}
                     </div>
                     <p className="text-gray-600 mb-6">
-                      "{testimonial.content}"
+                      &quot; {testimonial.content}&quot;
                     </p>
                     <div className="flex items-center">
                       <img

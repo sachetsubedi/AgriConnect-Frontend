@@ -6,7 +6,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { useSession } from "@/hooks/useSession";
 import { FC, use } from "react";
 
-const page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
+const Page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   const { userId } = use(params);
 
   const session = useSession();
@@ -44,4 +44,4 @@ const page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   );
 };
 
-export default page;
+export default Page;
