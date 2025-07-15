@@ -26,10 +26,6 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-    const userId = localStorage.getItem("user");
-    if (userId) {
-      router.push(`/p/${userId}/dashboard`);
-    }
   }, [router]);
 
   if (!mounted) {
