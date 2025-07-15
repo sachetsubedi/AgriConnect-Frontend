@@ -189,8 +189,8 @@ const LoginPage = () => {
                                 onClick={() =>
                                   setIsPasswordVisible(!isPasswordVisible)
                                 }
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
+                                // whileHover={{ scale: 1.1 }}
+                                // whileTap={{ scale: 0.9 }}
                               >
                                 <Icon
                                   icon={
