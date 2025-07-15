@@ -239,8 +239,8 @@ export default function Home() {
             className="mt-16 relative"
           >
             <div className="relative max-w-4xl mx-auto">
-              {/* <motion.img
-                src="/banner-2.png"
+              <motion.img
+                src="/new-banner.jpg"
                 alt="AgriConnect Platform"
                 className="w-full rounded-2xl shadow-2xl"
                 animate={{
@@ -251,7 +251,7 @@ export default function Home() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-              /> */}
+              />
 
               {/* Floating Elements */}
               <motion.div
@@ -434,7 +434,7 @@ export default function Home() {
             >
               <div className="grid grid-cols-2 gap-4">
                 <motion.img
-                  src="https://images.unsplash.com/photo-1595273670150-bd0c3c392e4c?w=300"
+                  src="/landingFarmers.jpg"
                   alt="Farmer"
                   className="rounded-lg shadow-lg"
                   whileHover={{ scale: 1.05 }}
