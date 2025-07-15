@@ -158,10 +158,12 @@ export function PhoneInput({
             variant="outline"
             role="combobox"
             aria-expanded={openCommand}
-            className="w-max items-center justify-between whitespace-nowrap"
+            className="w-max h-12  items-center justify-between whitespace-nowrap"
           >
             {selectedCountry?.name ? (
-              <span className="relative top-0.5">{selectedCountry.emoji}</span>
+              <span className="relative top-0.5 text-xl">
+                {selectedCountry.emoji}
+              </span>
             ) : (
               "Select country"
             )}
@@ -170,7 +172,7 @@ export function PhoneInput({
         </PopoverTrigger>
         <PopoverContent className="p-0 w-max" align="start">
           <Command>
-            <CommandInput placeholder="Search country..." />
+            <CommandInput className="" placeholder="Search country..." />
             <CommandList>
               <CommandEmpty>No country found.</CommandEmpty>
               <ScrollArea
@@ -235,6 +237,7 @@ export function PhoneInput({
         onKeyDown={handleKeyDown}
         required={required}
         aria-required={required}
+        className="h-12 text-3xl"
         {...rest}
       />
     </div>
