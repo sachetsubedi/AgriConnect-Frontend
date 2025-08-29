@@ -282,7 +282,7 @@ const OrderViewPage: FC<{
                 <ListItem name="Phone" value={query.data?.buyer.phone || ""} />
                 <ListItem
                   name="Address"
-                  value={query.data?.buyer.address || ""}
+                  value={query.data?.buyer.aaddress || ""}
                 />
               </div>
             </CardContent>
@@ -313,7 +313,7 @@ const OrderViewPage: FC<{
                 />
                 <ListItem
                   name="Address"
-                  value={query.data?.listing.seller.address || ""}
+                  value={query.data?.listing.seller.aaddress || ""}
                 />
               </div>
             </CardContent>
