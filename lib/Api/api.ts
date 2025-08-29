@@ -9,7 +9,7 @@ export type T_User = {
   name: string;
   email: string;
   phone: string;
-  address: string;
+  aaddress: string;
   avatar: string;
   userType: "buyer" | "seller";
   createdAt: string;
@@ -294,5 +294,24 @@ export const API_GetDashboardData = async () => {
       salesData: { month: string; sales: number }[];
     };
   }> = await axiosInstance.get(`/dashboard`);
+  return response.data;
+};
+
+export const API_UpdateProfile = async (data: {
+  name: string;
+  phone?: string;
+  address?: string;
+}) => {
+  const response: AxiosResponse<{ message: string; data: T_User }> =
+    await axiosInstance.patch(`/profile`, data);
+  return response.data;
+};
+
+export const API_ChangePassword = async (data: {
+  newPassword: string;
+  oldPassword: string;
+}) => {
+  const response: AxiosResponse<{ message: string; data: any }> =
+    await axiosInstance.post(`/profile/change-password`, data);
   return response.data;
 };

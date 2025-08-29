@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { FC, ReactNode } from "react";
 import { toast, Toaster } from "sonner";
+import { ThemeProvider } from "./ThemeProvider";
 
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
@@ -35,7 +36,14 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <QueryClientProvider client={client}>
       <Toaster richColors position="top-right" closeButton />
-      {children}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

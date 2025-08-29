@@ -1,4 +1,5 @@
 "use client";
+import { ModeToggle } from "@/components/modeToggle/ModeToggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -105,10 +106,10 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Navigation */}
       <motion.nav
-        className="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 border-b"
+        className="fixed top-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md z-50 border-b border-gray-200 dark:border-gray-700"
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
@@ -119,31 +120,31 @@ export default function Home() {
             whileHover={{ scale: 1.05 }}
           >
             <img src="/logo.png" alt="AgriConnect" className="h-10 w-auto" />
-            {/* <span className="text-2xl font-bold text-primary">AgriConnect</span> */}
           </motion.div>
 
           <div className="hidden md:flex space-x-8">
             <a
               href="#features"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors"
             >
               Features
             </a>
             <a
               href="#about"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors"
             >
               About
             </a>
             <a
               href="#testimonials"
-              className="text-gray-600 hover:text-primary transition-colors"
+              className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary transition-colors"
             >
               Testimonials
             </a>
           </div>
 
           <div className="flex space-x-4">
+            <ModeToggle />
             <Link href="/login">
               <Button variant="outline">Login</Button>
             </Link>
@@ -165,7 +166,7 @@ export default function Home() {
           >
             <motion.h1
               variants={fadeInUp}
-              className="text-5xl md:text-7xl font-bold text-gray-900 mb-6"
+              className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6"
             >
               Connecting
               <motion.span
@@ -189,7 +190,7 @@ export default function Home() {
 
             <motion.p
               variants={fadeInUp}
-              className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto"
+              className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
             >
               The ultimate marketplace for agricultural products featuring live
               auctions, AI-powered crop recommendations, and disease management
@@ -238,7 +239,7 @@ export default function Home() {
               <motion.img
                 src="/new-banner.jpg"
                 alt="AgriConnect Platform"
-                className="w-full rounded-2xl shadow-2xl"
+                className="w-full rounded-2xl shadow-2xl dark:shadow-gray-900/50"
                 animate={{
                   y: [0, -10, 0],
                 }}
@@ -251,7 +252,7 @@ export default function Home() {
 
               {/* Floating Elements */}
               <motion.div
-                className="absolute -top-4 -left-4 bg-white p-4 rounded-xl shadow-lg"
+                className="absolute -top-4 -left-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-900/50"
                 animate={{
                   y: [0, -15, 0],
                   rotate: [0, 5, 0],
@@ -266,7 +267,7 @@ export default function Home() {
               </motion.div>
 
               <motion.div
-                className="absolute -bottom-4 -right-4 bg-white p-4 rounded-xl shadow-lg"
+                className="absolute -bottom-4 -right-4 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-900/50"
                 animate={{
                   y: [0, 15, 0],
                   rotate: [0, -5, 0],
@@ -286,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-primary text-white">
+      <section className="py-16 bg-primary dark:bg-primary text-white">
         <div className="container mx-auto px-4">
           <motion.div
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
@@ -330,14 +331,14 @@ export default function Home() {
           >
             <motion.h2
               variants={fadeInUp}
-              className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+              className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
             >
               Powerful Features for
               <span className="text-primary"> Modern Agriculture</span>
             </motion.h2>
             <motion.p
               variants={fadeInUp}
-              className="text-xl text-gray-600 max-w-2xl mx-auto"
+              className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
             >
               Everything you need to succeed in agricultural trading and farming
             </motion.p>
@@ -357,19 +358,21 @@ export default function Home() {
                 whileHover={{ y: -10, scale: 1.02 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="h-full hover:shadow-xl transition-shadow duration-300">
+                <Card className="h-full hover:shadow-xl dark:hover:shadow-gray-900/50 transition-shadow duration-300 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <CardContent className="p-6 text-center">
                     <motion.div
-                      className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 text-primary rounded-2xl mb-4"
+                      className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 dark:bg-primary/20 text-primary rounded-2xl mb-4"
                       whileHover={{ rotate: 360 }}
                       transition={{ duration: 0.6 }}
                     >
                       {feature.icon}
                     </motion.div>
-                    <h3 className="text-xl font-semibold mb-3">
+                    <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {feature.description}
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -379,7 +382,7 @@ export default function Home() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-gray-50 px-4">
+      <section id="about" className="py-20 bg-gray-50 dark:bg-gray-800/50 px-4">
         <div className="container mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -389,10 +392,10 @@ export default function Home() {
               viewport={{ once: true }}
             >
               <Badge className="mb-4">About AgriConnect</Badge>
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
                 Revolutionizing Agriculture in Nepal
               </h2>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
                 AgriConnect is Nepal&apos;s first comprehensive agricultural
                 marketplace that bridges the gap between farmers and buyers
                 while providing cutting-edge tools for modern farming.
@@ -415,7 +418,9 @@ export default function Home() {
                     viewport={{ once: true }}
                   >
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span>{item}</span>
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {item}
+                    </span>
                   </motion.div>
                 ))}
               </div>
@@ -432,13 +437,13 @@ export default function Home() {
                 <motion.img
                   src="/landingFarmers.jpg"
                   alt="Farmer"
-                  className="rounded-lg shadow-lg"
+                  className="rounded-lg shadow-lg dark:shadow-gray-900/50"
                   whileHover={{ scale: 1.05 }}
                 />
                 <motion.img
                   src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=300"
                   alt="Crops"
-                  className="rounded-lg shadow-lg mt-8"
+                  className="rounded-lg shadow-lg dark:shadow-gray-900/50 mt-8"
                   whileHover={{ scale: 1.05 }}
                 />
               </div>
@@ -459,11 +464,14 @@ export default function Home() {
           >
             <motion.h2
               variants={fadeInUp}
-              className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"
+              className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
             >
               What Our Users Say
             </motion.h2>
-            <motion.p variants={fadeInUp} className="text-xl text-gray-600">
+            <motion.p
+              variants={fadeInUp}
+              className="text-xl text-gray-600 dark:text-gray-300"
+            >
               Trusted by thousands of farmers and buyers across Nepal
             </motion.p>
           </motion.div>
@@ -482,7 +490,7 @@ export default function Home() {
                 whileHover={{ y: -10 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="h-full hover:shadow-xl transition-shadow duration-300">
+                <Card className="h-full hover:shadow-xl dark:hover:shadow-gray-900/50 transition-shadow duration-300 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                   <CardContent className="p-6">
                     <div className="flex items-center mb-4">
                       {[...Array(5)].map((_, i) => (
@@ -492,7 +500,7 @@ export default function Home() {
                         />
                       ))}
                     </div>
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-gray-600 dark:text-gray-300 mb-6">
                       &quot; {testimonial.content}&quot;
                     </p>
                     <div className="flex items-center">
@@ -502,8 +510,10 @@ export default function Home() {
                         className="w-12 h-12 rounded-full mr-4"
                       />
                       <div>
-                        <h4 className="font-semibold">{testimonial.name}</h4>
-                        <p className="text-sm text-gray-500">
+                        <h4 className="font-semibold text-gray-900 dark:text-white">
+                          {testimonial.name}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           {testimonial.role}
                         </p>
                       </div>
@@ -517,7 +527,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-primary text-white px-4">
+      <section className="py-20 bg-primary dark:bg-primary text-white px-4">
         <div className="container mx-auto text-center">
           <motion.div
             initial="initial"
@@ -562,7 +572,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4">
+      <footer className="bg-gray-900 dark:bg-gray-950 text-white py-12 px-4">
         <div className="container mx-auto">
           <motion.div
             className="grid md:grid-cols-4 gap-8"
@@ -574,9 +584,8 @@ export default function Home() {
             <motion.div variants={fadeInUp}>
               <div className="flex items-center space-x-2 mb-4">
                 <img src="/logo.png" alt="AgriConnect" className="h-8 w-auto" />
-                {/* <span className="text-xl font-bold">AgriConnect</span> */}
               </div>
-              <p className="text-gray-400">
+              <p className="text-gray-400 dark:text-gray-300">
                 Connecting farmers and buyers across Nepal for a better
                 agricultural future.
               </p>
@@ -584,7 +593,7 @@ export default function Home() {
 
             <motion.div variants={fadeInUp}>
               <h3 className="text-lg font-semibold mb-4">Features</h3>
-              <ul className="space-y-2 text-gray-400">
+              <ul className="space-y-2 text-gray-400 dark:text-gray-300">
                 <li>Product Marketplace</li>
                 <li>Live Auctions</li>
                 <li>Crop Recommendations</li>
@@ -594,7 +603,7 @@ export default function Home() {
 
             <motion.div variants={fadeInUp}>
               <h3 className="text-lg font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
+              <ul className="space-y-2 text-gray-400 dark:text-gray-300">
                 <li>Help Center</li>
                 <li>Contact Us</li>
                 <li>Terms of Service</li>
@@ -611,7 +620,7 @@ export default function Home() {
           </motion.div>
 
           <motion.div
-            className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400"
+            className="border-t border-gray-800 dark:border-gray-700 mt-8 pt-8 text-center text-gray-400 dark:text-gray-300"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
@@ -624,7 +633,7 @@ export default function Home() {
 
       {/* Scroll to top button */}
       <motion.button
-        className="fixed bottom-8 right-8 bg-primary text-white p-3 rounded-full shadow-lg"
+        className="fixed bottom-8 right-8 bg-primary hover:bg-primary/90 text-white p-3 rounded-full shadow-lg dark:shadow-gray-900/50"
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.1 }}

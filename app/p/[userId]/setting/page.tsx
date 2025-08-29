@@ -2,44 +2,42 @@
 import CustomBreadcrumbs from "@/components/CustomBreadcrumbs";
 import Loader from "@/components/Loader";
 import PageHeader from "@/components/PageHeader";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/hooks/useSession";
 import { FC, use } from "react";
+import { ProfileSettings } from "./components/ProfileSettings";
+import { SecuritySettings } from "./components/SecuritySettings";
 
 const Page: FC<{ params: Promise<{ userId: string }> }> = ({ params }) => {
   const { userId } = use(params);
-
   const session = useSession();
 
   if (session.isLoading) return <Loader />;
-  console.log(session.data);
+
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader title="Settings" />
       <CustomBreadcrumbs
         items={[
           { title: "Account", link: `/p/${userId}/account` },
-          { title: "Edit" },
+          { title: "Settings" },
         ]}
       />
 
-      <Card className="mt-10">
-        <CardContent className="p-6">
-          <CardTitle className="font-semibold">Account Settings</CardTitle>
+      <Tabs defaultValue="profile" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+        </TabsList>
 
-          <div className="mt-10">
-            <div className="relative group">
-              <img
-                src={session.data?.avatar || ""}
-                alt={session.data?.name || ""}
-                className="w-60 h-60 rounded-full mb-4 group-hover:blur-sm"
-              />
-              <div className=" absolute">Change Image</div>
-            </div>
-            <div></div>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="profile" className="space-y-6">
+          <ProfileSettings user={session.data!} />
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-6">
+          <SecuritySettings />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
