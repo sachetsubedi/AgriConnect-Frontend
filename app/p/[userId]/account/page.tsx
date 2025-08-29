@@ -60,7 +60,7 @@ const Page = () => {
 
               <div className="font-[500] text-md flex">
                 <div className="text-muted-foreground w-28">Address</div>
-                <div>{session.data?.address || "-"}</div>
+                <div>{session.data?.aaddress || "-"}</div>
               </div>
 
               <div className="font-[500] text-md flex">
