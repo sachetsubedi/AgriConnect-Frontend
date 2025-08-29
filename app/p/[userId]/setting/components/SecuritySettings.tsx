@@ -2,16 +2,17 @@
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import LoadingButton from "@/components/ui/loadingButton";
-import { API_ChangePassword } from "@/lib/Api/api";
+import { API_ChangePassword, API_DeleteAccount } from "@/lib/Api/api";
 import { mapFieldsOnError } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Key } from "lucide-react";
+import { Eye, EyeOff, Key, TriangleAlert } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -39,16 +40,8 @@ export function SecuritySettings() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [securitySettings, setSecuritySettings] = useState({
-    twoFactorAuth: false,
-    loginNotifications: true,
-    suspiciousActivityAlerts: true,
-  });
+
+  const [deleteAccountDialogOpen, setDeleteAccountDialogOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -68,6 +61,30 @@ export function SecuritySettings() {
     onError: (error: any) => {
       mapFieldsOnError(error, form.setError);
       return toast.error("Failed to change password");
+    },
+  });
+
+  const deleteAccForm = useForm({
+    resolver: zodResolver(
+      z.object({
+        password: z.string().min(6, "Password must be at least 6 characters"),
+      })
+    ),
+    defaultValues: {
+      password: "",
+    },
+  });
+
+  const deleteAccountMutataion = useMutation({
+    mutationFn: API_DeleteAccount,
+    onSuccess: () => {
+      form.reset();
+      window.location.href = "/";
+      return toast.success("Account deleted successfully");
+    },
+    onError: (error: any) => {
+      mapFieldsOnError(error, deleteAccForm.setError);
+      return toast.error("Failed to delete account");
     },
   });
 
@@ -221,12 +238,65 @@ export function SecuritySettings() {
               Permanently delete your account and all associated data. This
               action cannot be undone.
             </p>
-            <Button variant="destructive" size="sm">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => {
+                setDeleteAccountDialogOpen(true);
+              }}
+            >
               Delete Account
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <Dialog
+        open={deleteAccountDialogOpen}
+        onOpenChange={setDeleteAccountDialogOpen}
+      >
+        <DialogContent>
+          <div className="flex justify-center items-center">
+            <TriangleAlert
+              size={30}
+              className="text-destructive"
+            ></TriangleAlert>
+          </div>
+          <DialogTitle className="text-center">
+            Are you sure you want to delete your account?
+          </DialogTitle>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Deleting your account is permanent and cannot be undone. All
+              personal data, listings, and settings associated with your account
+              will be permanently removed and cannot be recovered. This action
+              will sign you out of all devices. Please download any data you
+              want to keep before proceeding.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteAccountDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <LoadingButton
+                loading={deleteAccountMutataion.isPending}
+                variant="destructive"
+                onClick={() => {
+                  deleteAccForm.handleSubmit(() => {
+                    deleteAccountMutataion.mutate({
+                      password: deleteAccForm.watch("password"),
+                    });
+                  })();
+                }}
+              >
+                Delete Account
+              </LoadingButton>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

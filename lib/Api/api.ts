@@ -315,3 +315,9 @@ export const API_ChangePassword = async (data: {
     await axiosInstance.post(`/profile/change-password`, data);
   return response.data;
 };
+
+export const API_DeleteAccount = async (data: { password: string }) => {
+  const response: AxiosResponse<{ message: string; data: any }> =
+    await axiosInstance.post(`/profile/delete-account`, data);
+  return response.data;
+};
